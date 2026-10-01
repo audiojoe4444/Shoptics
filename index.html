@@ -89,26 +89,62 @@
   .dots i{width:12px;height:12px;border-radius:50%}
   .chev{font-size:34px;color:var(--muted);font-weight:800}
 
-  #typeIt{margin-top:18px;height:68px;padding:0 26px;border-radius:34px;background:var(--panel);border:3px solid #262a3e;
-    display:flex;align-items:center;gap:12px;font-size:21px;font-weight:800;color:var(--ink);transition:all .18s}
-  #typeIt svg{width:28px;height:28px}
-  #typeIt:focus{border-color:var(--pink);color:var(--pink);box-shadow:0 0 0 5px rgba(255,79,179,.15),0 0 26px rgba(255,79,179,.3);transform:scale(1.04)}
+  /* home "Say it!" launcher */
+  #goSay{width:100%;height:150px;margin-top:64px;border-radius:75px;position:relative;
+    background:linear-gradient(135deg,#1a2a05,#0b1402);border:3px solid rgba(200,255,61,.45);
+    color:var(--lime);font-size:44px;font-weight:900;letter-spacing:-1px;padding-left:96px;
+    transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+  #goSay:focus{border-color:var(--lime);box-shadow:0 0 0 6px rgba(200,255,61,.18),0 0 38px rgba(200,255,61,.35);transform:scale(1.02)}
+  #goSay .mic{left:26px;width:96px;height:96px;margin-top:-48px}
+  #goSay .mic svg{width:46px;height:46px}
+
+  /* say page */
+  #sayView{align-items:center;padding:22px 26px 26px}
+  .stop{display:flex;align-items:center;width:100%;height:76px;flex:none}
+  .stop .cnt{margin-left:auto;font-size:17px;font-weight:800;color:var(--muted)}
+  .sq{font-size:36px;font-weight:900;letter-spacing:-.8px;margin-top:26px;text-align:center}
+  .sq b{color:var(--lime)}
+  #typeIt{margin-top:auto;height:72px;padding:0 28px;border-radius:36px;border:2px solid transparent;
+    display:flex;align-items:center;gap:12px;font-size:21px;font-weight:700;color:var(--muted);letter-spacing:.3px;transition:all .2s}
+  #typeIt svg{width:26px;height:26px;opacity:.8}
+  #typeIt span{border-bottom:2px solid rgba(255,79,179,.45);padding-bottom:2px}
+  #typeIt:focus{color:var(--pink);border-color:rgba(255,79,179,.6);background:rgba(255,79,179,.08);box-shadow:0 0 24px rgba(255,79,179,.25)}
+  #typeIt:focus span{border-bottom-color:transparent}
+
+  /* on-screen keyboard */
+  .kq{font-size:30px;font-weight:900;letter-spacing:-.6px;margin-top:2px}
+  .kq b{color:var(--pink)}
+  #mText{margin-top:12px;height:70px;border-radius:20px;background:#1a0a14;border:3px solid rgba(255,79,179,.55);
+    display:flex;align-items:center;padding:0 22px;font-size:30px;font-weight:800;white-space:nowrap;overflow:hidden}
+  #mText .ph{color:#7a4a66}
+  #mText .caret{display:inline-block;width:3px;height:34px;background:var(--pink);margin-left:3px;animation:blink 1s steps(1) infinite}
+  @keyframes blink{50%{opacity:0}}
+  #sugg{display:flex;gap:10px;height:58px;margin-top:12px;flex:none}
+  .sug{flex:1;min-width:0;border-radius:18px;background:var(--panel);border:2px solid #2b3050;font-size:20px;font-weight:800;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 10px;transition:all .14s}
+  .sug:focus{border-color:var(--cc,var(--pink));color:var(--cc,var(--pink));background:var(--panel2);transform:scale(1.05);box-shadow:0 0 20px rgba(255,79,179,.25)}
+  .sug.ghost{visibility:hidden}
+  #kb{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+  .krow{display:flex;gap:6px;justify-content:center}
+  .k.go,.k.wide{height:66px}
+  .k{width:49px;height:64px;border-radius:14px;background:var(--panel);border:2px solid #262a3e;font-size:24px;font-weight:800;
+     text-transform:uppercase;transition:transform .1s,border-color .1s,background .1s}
+  .k:focus{border-color:var(--pink);color:var(--pink);background:var(--panel2);transform:scale(1.18);box-shadow:0 0 18px rgba(255,79,179,.4);position:relative;z-index:2}
+  .k.wide{width:auto;flex:1;text-transform:none;font-size:20px}
+  .k.del{width:104px;text-transform:none;font-size:24px;color:var(--muted)}
+  .k.go{width:auto;flex:1;background:var(--lime);border-color:var(--lime);color:#000;text-transform:none;font-size:22px;font-weight:900}
+  .k.go:focus{color:#000;background:var(--lime);transform:scale(1.04);box-shadow:0 0 26px rgba(200,255,61,.5)}
+  .k:active{transform:scale(.92)}
 
   /* ---------- MANUAL ADD ---------- */
-  #manual{padding:22px 26px}
+  #manual{padding:18px 26px 18px}
   .mstep{display:none;flex-direction:column;height:100%}
   .mstep.on{display:flex}
-  .mtop{display:flex;align-items:center;gap:16px;height:80px;flex:none}
+  .mtop{display:flex;align-items:center;gap:16px;height:72px;flex:none}
   .mtop .stepn{margin-left:auto;font-size:17px;font-weight:800;color:var(--muted)}
   .mq{font-size:38px;font-weight:900;letter-spacing:-.8px;margin-top:22px}
   .mq b{color:var(--pink)}
-  #mItem{margin-top:22px;width:100%;height:110px;border-radius:28px;background:#1a0a14;border:3px solid rgba(255,79,179,.45);
-    color:var(--ink);font:inherit;font-size:34px;font-weight:800;padding:0 30px;caret-color:var(--pink);transition:all .18s}
-  #mItem::placeholder{color:#7a4a66}
-  #mItem:focus{border-color:var(--pink);box-shadow:0 0 0 6px rgba(255,79,179,.16),0 0 34px rgba(255,79,179,.3)}
-  #mNext{margin-top:auto;height:92px;border-radius:28px;background:var(--panel2);border:3px solid #2b3050;font-size:26px;font-weight:900;transition:all .16s}
-  #mNext:focus{background:var(--pink);border-color:var(--pink);color:#000;box-shadow:0 0 30px rgba(255,79,179,.4);transform:scale(1.02)}
-  .back2{height:68px;padding:0 20px 0 14px;border-radius:22px;background:var(--panel);border:3px solid #262a3e;font-size:21px;font-weight:800;transition:all .18s}
+  .back2{flex:none;white-space:nowrap;height:68px;padding:0 20px 0 14px;border-radius:22px;background:var(--panel);border:3px solid #262a3e;font-size:21px;font-weight:800;transition:all .18s}
   .back2:focus{border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 0 5px rgba(61,232,255,.15)}
   .qwrap{display:flex;gap:22px;flex:1;margin-top:8px}
   .qleft{width:178px;display:flex;flex-direction:column}
@@ -215,19 +251,12 @@
     </div>
     <div class="tag">See it. Say it. Sorted.</div>
 
-    <div class="say-wrap">
+    <button id="goSay" class="focusable" aria-label="Say it — add items">
       <span class="mic" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
           <rect x="9" y="2.5" width="6" height="12" rx="3" fill="#000"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3.5"/>
         </svg>
-      </span>
-      <input id="say" class="focusable" type="text" inputmode="text" autocomplete="off" autocorrect="on"
-             enterkeyhint="done" placeholder="Say it!" aria-label="Say or type items to add">
-    </div>
-    <div class="hint" id="hint">Tap, then say "two pineapples, six beers and some loo roll"</div>
-    <button id="typeIt" class="focusable" aria-label="Type an item instead">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="2.5" y="6" width="19" height="12" rx="2.5"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg>
-      Type it instead
+      </span>Say it!
     </button>
 
     <button id="openList" class="focusable" aria-label="Open shopping list">
@@ -235,6 +264,26 @@
       <span class="lst-txt"><span class="t">My List</span><span class="s" id="listSub">Nothing yet</span></span>
       <span class="dots" id="dots"></span>
       <span class="chev">›</span>
+    </button>
+  </section>
+
+  <!-- SAY PAGE -->
+  <section id="sayView" class="view" aria-label="Say items">
+    <div class="stop"><button class="back2" id="sBack">‹ Home</button><span class="cnt" id="sCnt"></span></div>
+    <div class="sq">What do you <b>need?</b></div>
+    <div class="say-wrap" style="margin-top:30px">
+      <span class="mic" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="9" y="2.5" width="6" height="12" rx="3" fill="#000"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3.5"/>
+        </svg>
+      </span>
+      <input id="say" class="focusable" type="text" inputmode="text" autocomplete="off" autocorrect="on"
+             enterkeyhint="done" placeholder="Press &amp; speak" aria-label="Press, then speak your items">
+    </div>
+    <div class="hint" id="hint">e.g. "two pineapples, six beers and some loo roll"</div>
+    <button id="typeIt" class="focusable" aria-label="Type it instead">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="2.5" y="6" width="19" height="12" rx="2.5"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg>
+      <span>Type it instead</span>
     </button>
   </section>
 
@@ -256,10 +305,10 @@
   <!-- MANUAL ADD -->
   <section id="manual" class="view" aria-label="Type an item">
     <div class="mstep on" id="mStep1">
-      <div class="mtop"><button class="back2" id="mCancel">‹ Cancel</button><span class="stepn">1 of 2</span></div>
-      <div class="mq">What is the <b>item?</b></div>
-      <input id="mItem" type="text" inputmode="text" autocomplete="off" autocapitalize="words" enterkeyhint="next" placeholder="e.g. Lemons" aria-label="What is the item?">
-      <button id="mNext">Next ›</button>
+      <div class="mtop"><button class="back2" id="mCancel">‹ Back</button><span class="kq">What is the <b>item?</b></span><span class="stepn">1 of 2</span></div>
+      <div id="mText" aria-live="polite"></div>
+      <div id="sugg"></div>
+      <div id="kb"></div>
     </div>
     <div class="mstep" id="mStep2">
       <div class="qwrap">
@@ -503,20 +552,38 @@ var modalState = null; // {q, sub, yes, no, onYes, returnFocus}
 var lastFocusInList = null;
 var homeFocus = null;
 
+// Browsers (including the glasses) can restore an old focus after a Back/history step.
+// settle() puts focus where we want it and re-asserts it briefly unless the wearer has moved on.
+var lastKeyAt = 0;
+function settle(el){
+  if (!el) return;
+  var t0 = Date.now();
+  el.focus();
+  [40, 150, 350, 700].forEach(function(ms){
+    setTimeout(function(){
+      if (lastKeyAt > t0 || !document.body.contains(el) || el.offsetParent === null) return;
+      if (document.activeElement !== el) el.focus();
+    }, ms);
+  });
+}
 function show(v){
   view = v;
   $("home").classList.toggle("active", v==="home");
   $("list").classList.toggle("active", v==="list");
   $("manual").classList.toggle("active", v==="manual");
-  if (v==="home"){ renderHome(); (homeFocus || say).focus(); homeFocus = null; }
+  $("sayView").classList.toggle("active", v==="say");
+  if (v==="home"){ renderHome(); settle(homeFocus || $("goSay")); homeFocus = null; }
+  else if (v==="say"){ renderHome(); settle(homeFocus || say); homeFocus = null; }
   else if (v==="manual"){ /* handled by manualStep() */ }
   else { renderList(); var f = lastFocusInList && document.querySelector('.item[data-id="'+lastFocusInList+'"]');
-         (f || document.querySelector(".item") || $("back")).focus(); }
+         settle(f || document.querySelector(".item") || $("back")); }
 }
 
 function renderHome(){
   var left = items.filter(function(i){return !i.bought;}).length;
   var got = items.length - left;
+  var lc = items.filter(function(i){return !i.bought;}).length;
+  $("sCnt").textContent = lc ? lc+" on your list" : "";
   $("listSub").textContent = items.length ? (left+" to get" + (got ? " · "+got+" in basket" : "")) : "Nothing yet — say something!";
   var dots = $("dots"); dots.innerHTML = "";
   CATS.forEach(function(c){
@@ -605,7 +672,7 @@ function onItemRemove(el){
     q: "Remove “"+label(it)+"”?",
     sub: "It'll be deleted from the list.",
     yes: "Remove", no: "Keep it",
-    defaultYes: false,
+    defaultYes: true,
     onYes: function(){
       var idx = items.indexOf(it);
       var nextId = null, els = Array.prototype.slice.call(document.querySelectorAll(".item"));
@@ -629,7 +696,7 @@ function exitList(){
     yes: "Yes, clear", no: "Keep them",
     defaultYes: true,
     onYes: function(){ items = items.filter(function(i){return !i.bought;}); save(); renderHome(); flash("Cleared!", [], false); },
-    returnFocus: say
+    returnFocus: $("goSay")
   });
 }
 
@@ -639,8 +706,11 @@ function openModal(o){
   $("mQ").textContent = o.q; $("mSub").textContent = o.sub || "";
   $("mYes").textContent = o.yes; $("mNo").textContent = o.no;
   $("modal").classList.add("show");
-  (o.defaultYes ? $("mYes") : $("mNo")).focus();
+  var target = o.defaultYes ? $("mYes") : $("mNo");
+  modalMoved = false;
+  settle(target);
 }
+var modalMoved = false;
 var modalClosedAt = 0;
 function closeModal(choice){
   var o = modalState; if (!o) return;
@@ -649,7 +719,7 @@ function closeModal(choice){
   var handled = false;
   if (choice && o.onYes) handled = o.onYes();
   if (!handled && o.returnFocus && document.body.contains(o.returnFocus)) o.returnFocus.focus();
-  else if (!handled) (view==="home" ? say : ($("back"))).focus();
+  else if (!handled) ({home:$("goSay"), say:say, list:$("back")}[view] || $("goSay")).focus();
 }
 $("mYes").addEventListener("click", function(){ closeModal(true); });
 $("mNo").addEventListener("click", function(){ closeModal(false); });
@@ -703,11 +773,74 @@ say.addEventListener("input", function(){
 });
 
 /* =========================================================
-   MANUAL ADD ("Type it instead"): item name → how many?
+   TYPE IT INSTEAD: Shoptics' own keyboard (no voice) → how many?
+   The glasses' system text box can't be forced into keyboard mode,
+   so this screen never uses a text field at all.
    ========================================================= */
-var mItem = $("mItem"), mStep = 1, mQty = "", mParsed = null, unwinding = false;
+var mStep = 1, mQty = "", mParsed = null, mTxt = "", unwinding = false;
+var KB_ROWS = ["qwertyuiop","asdfghjkl","zxcvbnm"];
+(function buildKb(){
+  var kb = $("kb"), h = "";
+  KB_ROWS.forEach(function(r, i){
+    h += '<div class="krow">';
+    r.split("").forEach(function(c){ h += '<button class="k" data-c="'+c+'">'+c+'</button>'; });
+    if (i === 2) h += '<button class="k del" data-c="del" aria-label="Delete">⌫</button>';
+    h += '</div>';
+  });
+  h += '<div class="krow"><button class="k wide" data-c=" ">space</button><button class="k go" data-c="next">Next ›</button></div>';
+  kb.innerHTML = h;
+})();
+
+// Suggestion vocabulary: things you've added before (first), then every known grocery word
+var VOCAB = (function(){
+  var seen = {}, out = [];
+  Object.keys(KEYWORDS).forEach(function(cat){
+    KEYWORDS[cat].split(",").forEach(function(k){
+      k = k.trim(); if (k.length < 3 || seen[k]) return; seen[k] = 1; out.push(k);
+    });
+  });
+  return out;
+})();
+var HIST_KEY = "shoptics.history", hist = [];
+try { hist = JSON.parse(localStorage.getItem(HIST_KEY)) || []; } catch(e){ hist = []; }
+function remember(name){
+  hist = [name].concat(hist.filter(function(h){ return h.toLowerCase() !== name.toLowerCase(); })).slice(0, 80);
+  try { localStorage.setItem(HIST_KEY, JSON.stringify(hist)); } catch(e){}
+}
+function suggestions(q){
+  q = q.trim().toLowerCase(); if (!q) return hist.slice(0,3);
+  var res = [], seen = {};
+  function push(n){ var k = n.toLowerCase(); if (!seen[k] && res.length < 3){ seen[k] = 1; res.push(n); } }
+  function score(w){ var t = w.toLowerCase(); return t.indexOf(q) === 0 ? 0 : (t.indexOf(" "+q) >= 0 ? 1 : 9); }
+  hist.filter(function(h){ return score(h) < 9; }).forEach(push);
+  VOCAB.filter(function(v){ return score(v) < 9; })
+       .sort(function(a,b){ return score(a)-score(b) || a.length-b.length; })
+       .forEach(function(v){ push(titleCase(v)); });
+  return res;
+}
+function renderText(){
+  var t = $("mText");
+  t.innerHTML = mTxt ? esc(titleCase(mTxt))+'<span class="caret"></span>' : '<span class="caret"></span><span class="ph">&nbsp;e.g. Lemons</span>';
+  var sg = $("sugg"), list = suggestions(mTxt), had = sg.contains(document.activeElement);
+  var h = "";
+  for (var i=0;i<3;i++){
+    var n = list[i];
+    if (n){ var c = CAT_BY_ID[categorise(n)]; h += '<button class="sug" data-s="'+esc(n)+'" style="--cc:'+c.hex+'">'+esc(n)+'</button>'; }
+    else h += '<span class="sug ghost"></span>';
+  }
+  sg.innerHTML = h;
+  if (had){ var f = sg.querySelector(".sug"); (f || $("kb").querySelector('[data-c="g"]')).focus(); }
+}
+function kbPress(c){
+  if (c === "next"){ toQty(); return; }
+  if (c === "del"){ mTxt = mTxt.slice(0,-1); }
+  else if (c === " "){ if (mTxt && !/ $/.test(mTxt) && mTxt.length < 40) mTxt += " "; }
+  else if (mTxt.length < 40){ mTxt += c; }
+  renderText();
+}
+
 function openManual(){
-  mItem.value = ""; mQty = ""; mParsed = null;
+  mTxt = ""; mQty = ""; mParsed = null;
   try { history.pushState({v:"manual", step:1}, "", "#add"); } catch(e){}
   show("manual"); manualStep(1);
 }
@@ -715,15 +848,16 @@ function manualStep(n){
   mStep = n;
   $("mStep1").classList.toggle("on", n===1);
   $("mStep2").classList.toggle("on", n===2);
-  if (n===1){ mItem.focus(); }
-  else { renderQty(); $("pad").querySelector('[data-k="1"]').focus(); }
+  if (n===1){ renderText(); settle($("kb").querySelector('[data-c="g"]')); }
+  else { renderQty(); settle($("pad").querySelector('[data-k="1"]')); }
 }
-function toQty(){
-  var v = mItem.value.trim();
-  if (!v){ mItem.focus(); flash("Type an item first", [], true); return; }
-  mParsed = parseOne(v.replace(/[,.;]+/g," "));
+function toQty(name){
+  var v = (name || mTxt).trim();
+  if (!v){ flash("Type an item first", [], true); return; }
+  mTxt = v;
+  mParsed = parseOne(v.toLowerCase().replace(/[,.;]+/g," "));
   if (!mParsed){ flash("Type an item first", [], true); return; }
-  mQty = mParsed.qty ? String(mParsed.qty) : "";   // "6 eggs" pre-fills 6
+  mQty = mParsed.qty ? String(mParsed.qty) : "";
   var c = CAT_BY_ID[mParsed.cat];
   $("qName").textContent = mParsed.name; $("qName").style.color = c.hex;
   try { history.pushState({v:"manual", step:2}, "", "#add"); } catch(e){}
@@ -744,38 +878,62 @@ function finishManual(){
   if (!mParsed) return;
   var q = parseInt(mQty || "1", 10) || 1;
   var p = {name:mParsed.name, key:mParsed.key, cat:mParsed.cat, qty: q > 1 ? q : 0};
-  // manual quantity replaces (rather than adds to) an existing unticked item of the same name
   var ex = items.filter(function(i){ return i.key === p.key; })[0];
   var added;
   if (ex){ ex.bought = false; ex.qty = p.qty; ex.name = p.name; save(); added = [ex]; }
   else added = addParsed([p]);
-  leaveManual(true);
+  remember(p.name);
+  leaveManual();
   flash("Added!", added, false);
 }
-function leaveManual(focusTypeIt){
+function leaveManual(){
   // unwind the #add history entries so Back behaves normally afterwards
   var depth = mStep === 2 ? 2 : 1;
   homeFocus = $("typeIt");
   if (history.state && history.state.v === "manual"){ unwinding = true; history.go(-depth); }
-  show("home");
+  show("say");
 }
+$("goSay").addEventListener("click", function(){
+  try { history.pushState({v:"say"}, "", "#say"); } catch(e){}
+  show("say");
+});
+$("sBack").addEventListener("click", function(){ history.back(); });
 $("typeIt").addEventListener("click", openManual);
-$("mCancel").addEventListener("click", function(){ leaveManual(false); });
+$("mCancel").addEventListener("click", function(){ leaveManual(); });
 $("mBack2").addEventListener("click", function(){ history.back(); });
-$("mNext").addEventListener("click", toQty);
-mItem.addEventListener("change", function(){ if (mStep===1 && mItem.value.trim()) toQty(); });
-mItem.addEventListener("input", wake);
+$("kb").addEventListener("click", function(e){ var b = e.target.closest(".k"); if (b) kbPress(b.dataset.c); });
+$("sugg").addEventListener("click", function(e){ var b = e.target.closest(".sug"); if (b && b.dataset.s) toQty(b.dataset.s); });
 $("pad").addEventListener("click", function(e){ var b = e.target.closest(".key"); if (b) padPress(b.dataset.k); });
 
 /* =========================================================
    NAVIGATION (Neural Band → arrow keys / Enter / Escape)
    ========================================================= */
+function arr(sel){ return Array.prototype.slice.call(document.querySelectorAll(sel)); }
 function focusables(){
   if (modalState) return [$("mYes"), $("mNo")];
-  if (view==="home") return [say, $("typeIt"), $("openList")];
-  if (view==="manual") return mStep===1 ? [$("mCancel"), mItem, $("mNext")]
-                                        : [$("mBack2")].concat(Array.prototype.slice.call(document.querySelectorAll("#pad .key")));
-  return [$("back")].concat(Array.prototype.slice.call(document.querySelectorAll(".item")));
+  if (view==="home") return [$("goSay"), $("openList")];
+  if (view==="say") return [$("sBack"), say, $("typeIt")];
+  if (view==="manual") return mStep===1 ? [$("mCancel")].concat(arr("#sugg .sug:not(.ghost)"), arr("#kb .k"))
+                                        : [$("mBack2")].concat(arr("#pad .key"));
+  return [$("back")].concat(arr(".item"));
+}
+// Spatial navigation: pick the nearest element in the swipe direction (used for keyboards)
+function spatial(dir){
+  var list = focusables(), cur = document.activeElement;
+  if (list.indexOf(cur) < 0){ list[0].focus(); return; }
+  var r = cur.getBoundingClientRect(), cx = r.left + r.width/2, cy = r.top + r.height/2, best = null, bs = 1e9;
+  list.forEach(function(el){
+    if (el === cur) return;
+    var q = el.getBoundingClientRect(), x = q.left + q.width/2, y = q.top + q.height/2, dx = x - cx, dy = y - cy, main, side;
+    var gapX = Math.max(0, q.left - r.right, r.left - q.right);   // 0 when columns overlap
+    if (dir === "ArrowUp"){ if (dy > -8) return; main = -dy; side = gapX*2 + Math.abs(dx)*0.3; }
+    else if (dir === "ArrowDown"){ if (dy < 8) return; main = dy; side = gapX*2 + Math.abs(dx)*0.3; }
+    else if (dir === "ArrowLeft"){ if (dx > -8 || Math.abs(dy) > r.height*0.6) return; main = -dx; side = Math.abs(dy); }
+    else { if (dx < 8 || Math.abs(dy) > r.height*0.6) return; main = dx; side = Math.abs(dy); }
+    var sc = main + (dir === "ArrowUp" || dir === "ArrowDown" ? side : side * 2.2);
+    if (sc < bs){ bs = sc; best = el; }
+  });
+  if (best) best.focus();
 }
 function move(dir){
   var list = focusables(); var i = list.indexOf(document.activeElement);
@@ -792,17 +950,18 @@ function move(dir){
 var escTimer = null, popCount = 0;
 document.addEventListener("keydown", function(e){
   var k = e.key;
+  lastKeyAt = Date.now();
   if (k.length === 1) lastTyped = Date.now();
   if (dimmed){ wake(); if (k !== "Shift") { e.preventDefault(); e.stopPropagation(); } return; } // first press just wakes the screen
   wake();
 
   var inSay = document.activeElement === say;
-  var inItem = document.activeElement === mItem;
+  if (modalState && k.indexOf("Arrow") === 0) modalMoved = true;
 
-  if (k === "Escape" || (k === "Backspace" && !inSay && !inItem)){
+  if (k === "Escape" || (k === "Backspace" && !inSay)){
     e.preventDefault();
     if (modalState){ closeModal(false); return; }
-    if (view === "list" || view === "manual"){
+    if (view !== "home"){
       // The glasses shell may also call history.back() for the same Back gesture;
       // only act ourselves if no popstate arrives first, so we never go back twice.
       var seen = popCount;
@@ -815,37 +974,24 @@ document.addEventListener("keydown", function(e){
     if (say.value.trim()){ e.preventDefault(); commit(); }
     return; // empty: let the glasses open the text composer
   }
-  if (inItem){
-    if (k === "Enter" && mItem.value.trim()){ e.preventDefault(); toQty(); return; }
-    if (k === "Enter") return;                                   // empty: let the glasses open the keyboard
-    if ((k === "ArrowLeft" || k === "ArrowRight") && mItem.value) return; // caret moves on desktop
-  }
-  if (view === "manual" && mStep === 2 && !modalState){
-    if (/^[0-9]$/.test(k)){ e.preventDefault(); padPress(k); return; }   // desktop number keys
-    var keys = Array.prototype.slice.call(document.querySelectorAll("#pad .key"));
-    var ki = keys.indexOf(document.activeElement);
-    if (k.indexOf("Arrow") === 0){
-      e.preventDefault();
-      if (ki < 0){ if (k === "ArrowRight" || k === "ArrowDown") keys[0].focus(); return; }
-      var col = ki % 3, row = Math.floor(ki / 3), to = ki;
-      if (k === "ArrowRight" && col < 2) to = ki + 1;
-      if (k === "ArrowLeft"){ if (col > 0) to = ki - 1; else { $("mBack2").focus(); return; } }
-      if (k === "ArrowDown" && row < 3) to = ki + 3;
-      if (k === "ArrowUp"){ if (row > 0) to = ki - 3; else { $("mBack2").focus(); return; } }
-      keys[to].focus(); return;
-    }
+  if (inSay && say.value && (k === "ArrowLeft" || k === "ArrowRight")) return; // caret moves on desktop
+
+  if (view === "manual" && !modalState){
+    // physical keyboard (desktop testing)
+    if (mStep === 1 && /^[a-zA-Z ]$/.test(k)){ e.preventDefault(); kbPress(k === " " ? " " : k.toLowerCase()); return; }
+    if (mStep === 2 && /^[0-9]$/.test(k)){ e.preventDefault(); padPress(k); return; }
+    if (k.indexOf("Arrow") === 0){ e.preventDefault(); spatial(k); return; }
   }
   if (k === "ArrowDown"){ e.preventDefault(); move(1); return; }
   if (k === "ArrowUp"){ e.preventDefault(); move(-1); return; }
   if (k === "ArrowLeft" || k === "ArrowRight"){
-    if (inSay && say.value) return; // allow caret moves while typing on desktop
     e.preventDefault();
     if (modalState){ move(k==="ArrowRight" ? 1 : -1); return; }
     if (view==="list"){
       var a = document.activeElement;
       if (k==="ArrowRight" && a && a.classList.contains("item")) onItemRemove(a);
       if (k==="ArrowLeft") $("back").focus(), $("scroller").scrollTo({top:0, behavior:"smooth"});
-    } else if (view==="home" || view==="manual"){
+    } else {
       move(k==="ArrowRight" ? 1 : -1);
     }
     return;
@@ -869,9 +1015,10 @@ window.addEventListener("popstate", function(e){
   if (unwinding){ unwinding = false; return; }
   if (view === "manual"){
     if (st.v === "manual" && st.step === 1){ manualStep(1); return; }   // Back on "How many?" → item name
-    if (st.v !== "manual"){ homeFocus = $("typeIt"); show("home"); }   // Back on "What is the item?" → cancel
+    if (st.v !== "manual"){ homeFocus = $("typeIt"); show(st.v === "say" ? "say" : "home"); }
     return;
   }
+  if (view === "say"){ if (st.v !== "say") show("home"); return; }
   if (view !== "list" || st.v === "list") return;
   // Back while a pop-up is open on the list (or just closed by the same gesture): close it, stay on the list
   if (modalState || Date.now() - modalClosedAt < 500){
@@ -901,7 +1048,7 @@ function wake(){
    BOOT
    ========================================================= */
 load();
-if (location.hash === "#list" || location.hash === "#add"){ try { history.replaceState(null, "", location.pathname + location.search); } catch(e){} }
+if (/^#(list|add|say)$/.test(location.hash)){ try { history.replaceState(null, "", location.pathname + location.search); } catch(e){} }
 show("home");
 wake();
 

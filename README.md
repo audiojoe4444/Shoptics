@@ -4,14 +4,14 @@
 ## Using it
 | Do this | Neural Band / touchpad |
 |---|---|
-| **Add items** | Press on **Say it!** → the glasses' dictation opens → say e.g. *"two pineapples, six beers and some toilet rolls"*. It splits them up, sorts them into aisles and shows "Added!". Press again to add more. |
-| **Add without speaking** (e.g. in a meeting) | Swipe down to **Type it instead** → "What is the item?" → press the box and use the glasses keyboard → "How many?" → tap the number on the keypad → **Add ✓** (leave it blank for just one) |
+| **Add items** | Press **Say it!** → press **Press & speak** → the glasses' dictation opens → say e.g. *"two pineapples, six beers and some toilet rolls"*. It splits them up, sorts them into aisles and shows "Added!". You stay on this screen, so each extra item is one press. |
+| **Add without speaking** (e.g. in a meeting) | On the Say it! screen, swipe down to **Type it instead** → Shoptics' own keyboard (never voice) → pick a suggestion or tap **Next ›** → "How many?" keypad → **Add ✓** (leave blank for just one) |
 | **Open the list** | Swipe down to **My List**, press |
 | **Move around the list** | Swipe up / down |
 | **Tick an item (into the basket)** | Press → it greys out and stays on the list |
 | **Un-tick (re-shop it)** | Press a greyed item → "Put it back on the list?" → Yes |
-| **Delete a mistake** | Swipe right on an item → Remove |
-| **Leave the list** | Back gesture (or the ‹ Back button) → "Clear the ticked items?" Yes removes them; No keeps them greyed |
+| **Delete a mistake** | Swipe right on an item → Remove (already selected, so just press) |
+| **Leave the list** | Back gesture (or the ‹ Back button) → "Clear the ticked items?" (Yes is already selected) Yes removes them; No keeps them greyed |
 
 - After 15 seconds with no input the app dims. The next press only wakes it up, so you can't tick something by accident.
 - The app makes no sound and never touches audio, so music from your phone keeps playing.
