@@ -4,7 +4,7 @@
 ## Using it
 | Do this | Neural Band / touchpad |
 |---|---|
-| **Add items** | Press **Say it!** → press **Press & speak** → the glasses' dictation opens → say e.g. *"two pineapples, six beers and some toilet rolls"*. It splits them up, sorts them into aisles and shows "Added!". You stay on this screen, so each extra item is one press. |
+| **Add items** | Press **Say it!** → press **Press & speak** (it stays selected after each add) → the glasses' dictation opens → say e.g. *"two pineapples, six beers and some toilet rolls"*. It splits them up, sorts them into aisles and shows "Added!". You stay on this screen, so each extra item is one press. |
 | **Add without speaking** (e.g. in a meeting) | On the Say it! screen, swipe down to **Type it instead** → Shoptics' own keyboard (never voice) → pick a suggestion or tap **Next ›** → "How many?" keypad → **Add ✓** (leave blank for just one) |
 | **Open the list** | Swipe down to **My List**, press |
 | **Move around the list** | Swipe up / down |
@@ -21,7 +21,7 @@ Aisles: Produce · Dairy & Eggs · Pantry & Dry Goods · Meat & Seafood · House
 
 ## Putting it on GitHub Pages
 1. Create a new repository (e.g. `shoptics`) on github.com.
-2. **Add file → Upload files** → drag in everything from this folder (`index.html`, `sw.js`, `manifest.json`, `icon-96.png`, `icon-192.png`, `icon-512.png`, `README.md`) → Commit.
+2. **Add file → Upload files** → drag in everything from this folder (`index.html`, `sw.js`, `manifest.json`, `icon-96.png`, `icon-192.png`, `icon-512.png`, `apple-touch-icon.png`, `README.md`) → Commit.
 3. **Settings → Pages** → Source: *Deploy from a branch*, Branch: `main`, folder `/ (root)` → Save.
 4. After a minute your app is at `https://<your-username>.github.io/shoptics/`. Open/install that URL on the glasses the same way as your other apps.
 
