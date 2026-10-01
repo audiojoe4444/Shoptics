@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=600, height=600, initial-scale=1.0, user-scalable=no">
+<meta name="application-name" content="Shoptics">
+<meta name="description" content="Shoptics — a say-it-and-it's-there shopping list for Meta Ray-Ban Display.">
+<meta name="mrbd-web-app-capable" content="yes">
+<meta name="theme-color" content="#000000">
+<title>Shoptics</title>
+<link rel="icon" href="icon-96.png" sizes="96x96" type="image/png">
+<link rel="icon" href="icon-192.png" sizes="192x192" type="image/png">
+<link rel="manifest" href="manifest.json">
+<style>
+  :root{
+    --bg:#000;
+    --ink:#F4F6FF;
+    --muted:#8D93B0;
+    --lime:#C8FF3D;
+    --pink:#FF4FB3;
+    --cyan:#3DE8FF;
+    --panel:#12141F;
+    --panel2:#1B1E2E;
+    --c-produce:#7CFF6B;
+    --c-dairy:#FFF06A;
+    --c-pantry:#FFB347;
+    --c-meat:#FF6B6B;
+    --c-household:#5CE1FF;
+    --c-personal:#C59BFF;
+    --c-treats:#FF5FC8;
+    --c-other:#C9CCDA;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:600px;height:600px;background:var(--bg);color:var(--ink);overflow:hidden}
+  body{font-family:"SF Pro Rounded","Nunito","Segoe UI",system-ui,-apple-system,Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+  :focus{outline:none}
+
+  #app{position:relative;width:600px;height:600px;transition:opacity 1.2s ease, filter 1.2s ease}
+  #app.dim{opacity:.38;filter:saturate(.6)}
+
+  .view{position:absolute;inset:0;display:none;flex-direction:column}
+  .view.active{display:flex}
+
+  /* ---------- HOME ---------- */
+  #home{align-items:center;padding:34px 40px 30px}
+  .brand{display:flex;align-items:center;gap:14px;margin-top:4px}
+  .brand svg{width:86px;height:44px;overflow:visible}
+  .word{font-size:46px;font-weight:900;letter-spacing:-1.5px;line-height:1}
+  .word b{color:var(--lime)}
+  .tag{color:var(--muted);font-size:18px;margin-top:8px;font-weight:600;letter-spacing:.3px}
+  .lens{animation:lensGlow 3.2s ease-in-out infinite}
+  .lens.r{animation-delay:1.6s}
+  @keyframes lensGlow{0%,100%{stroke-opacity:1}50%{stroke-opacity:.55}}
+  .spark{transform-origin:center;transform-box:fill-box;animation:spark 2.4s ease-in-out infinite}
+  @keyframes spark{0%,100%{transform:scale(.6) rotate(0);opacity:.5}50%{transform:scale(1.15) rotate(45deg);opacity:1}}
+
+  .say-wrap{position:relative;width:100%;margin-top:42px}
+  #say{
+    width:100%;height:132px;border-radius:66px;
+    background:linear-gradient(135deg,#1a2a05,#0b1402);
+    border:3px solid rgba(200,255,61,.45);
+    color:var(--lime);font:inherit;font-size:34px;font-weight:800;text-align:center;
+    padding:0 40px 0 112px;caret-color:var(--lime);
+    transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+  }
+  #say::placeholder{color:var(--lime);opacity:1}
+  #say:focus{border-color:var(--lime);box-shadow:0 0 0 6px rgba(200,255,61,.18),0 0 38px rgba(200,255,61,.35);transform:scale(1.02)}
+  .mic{position:absolute;left:22px;top:50%;width:84px;height:84px;margin-top:-42px;border-radius:50%;
+       background:var(--lime);display:grid;place-items:center;pointer-events:none;z-index:1}
+  .mic svg{width:40px;height:40px}
+  .mic::after{content:"";position:absolute;inset:0;border-radius:50%;border:3px solid var(--lime);animation:ping 2.2s ease-out infinite}
+  @keyframes ping{0%{transform:scale(1);opacity:.8}100%{transform:scale(1.55);opacity:0}}
+  .hint{color:var(--muted);font-size:17px;margin-top:12px;text-align:center;font-weight:600}
+
+  #openList{
+    margin-top:auto;width:100%;height:100px;border-radius:28px;background:var(--panel);
+    border:3px solid #262a3e;display:flex;align-items:center;gap:20px;padding:0 28px;text-align:left;
+    transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;
+  }
+  #openList:focus{border-color:var(--cyan);box-shadow:0 0 0 6px rgba(61,232,255,.15),0 0 30px rgba(61,232,255,.3);transform:scale(1.02)}
+  .lst-ico{width:56px;height:56px;border-radius:16px;background:var(--cyan);display:grid;place-items:center;flex:none}
+  .lst-ico svg{width:30px;height:30px}
+  .lst-txt{flex:1}
+  .lst-txt .t,.lst-txt .s{display:block}
+  .lst-txt .t{font-size:28px;font-weight:800}
+  .lst-txt .s{font-size:17px;color:var(--muted);margin-top:3px;font-weight:600}
+  .dots{display:flex;gap:6px;flex-wrap:wrap;max-width:120px;justify-content:flex-end}
+  .dots i{width:12px;height:12px;border-radius:50%}
+  .chev{font-size:34px;color:var(--muted);font-weight:800}
+
+  #typeIt{margin-top:18px;height:68px;padding:0 26px;border-radius:34px;background:var(--panel);border:3px solid #262a3e;
+    display:flex;align-items:center;gap:12px;font-size:21px;font-weight:800;color:var(--ink);transition:all .18s}
+  #typeIt svg{width:28px;height:28px}
+  #typeIt:focus{border-color:var(--pink);color:var(--pink);box-shadow:0 0 0 5px rgba(255,79,179,.15),0 0 26px rgba(255,79,179,.3);transform:scale(1.04)}
+
+  /* ---------- MANUAL ADD ---------- */
+  #manual{padding:22px 26px}
+  .mstep{display:none;flex-direction:column;height:100%}
+  .mstep.on{display:flex}
+  .mtop{display:flex;align-items:center;gap:16px;height:80px;flex:none}
+  .mtop .stepn{margin-left:auto;font-size:17px;font-weight:800;color:var(--muted)}
+  .mq{font-size:38px;font-weight:900;letter-spacing:-.8px;margin-top:22px}
+  .mq b{color:var(--pink)}
+  #mItem{margin-top:22px;width:100%;height:110px;border-radius:28px;background:#1a0a14;border:3px solid rgba(255,79,179,.45);
+    color:var(--ink);font:inherit;font-size:34px;font-weight:800;padding:0 30px;caret-color:var(--pink);transition:all .18s}
+  #mItem::placeholder{color:#7a4a66}
+  #mItem:focus{border-color:var(--pink);box-shadow:0 0 0 6px rgba(255,79,179,.16),0 0 34px rgba(255,79,179,.3)}
+  #mNext{margin-top:auto;height:92px;border-radius:28px;background:var(--panel2);border:3px solid #2b3050;font-size:26px;font-weight:900;transition:all .16s}
+  #mNext:focus{background:var(--pink);border-color:var(--pink);color:#000;box-shadow:0 0 30px rgba(255,79,179,.4);transform:scale(1.02)}
+  .back2{height:68px;padding:0 20px 0 14px;border-radius:22px;background:var(--panel);border:3px solid #262a3e;font-size:21px;font-weight:800;transition:all .18s}
+  .back2:focus{border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 0 5px rgba(61,232,255,.15)}
+  .qwrap{display:flex;gap:22px;flex:1;margin-top:8px}
+  .qleft{width:178px;display:flex;flex-direction:column}
+  .qleft .mq{font-size:34px;margin-top:6px;line-height:1.05}
+  .qname{margin-top:14px;font-size:21px;font-weight:800;padding:8px 14px;border-radius:16px;border:2px solid currentColor;align-self:flex-start;max-width:178px;word-break:break-word}
+  #qDisp{margin-top:auto;margin-bottom:6px;font-size:96px;font-weight:900;line-height:1;color:var(--pink);font-variant-numeric:tabular-nums}
+  #qDisp.ph{color:#4a2a3e}
+  #qDisp small{font-size:40px;margin-left:2px}
+  .pad{flex:1;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(4,1fr);gap:12px;padding-bottom:4px}
+  .key{border-radius:22px;background:var(--panel);border:3px solid #262a3e;font-size:36px;font-weight:900;transition:all .12s;font-variant-numeric:tabular-nums}
+  .key:focus{border-color:var(--pink);background:var(--panel2);color:var(--pink);transform:scale(1.07);box-shadow:0 0 24px rgba(255,79,179,.35)}
+  .key.del{font-size:30px;color:var(--muted)}
+  .key.ok{background:var(--lime);border-color:var(--lime);color:#000;font-size:24px}
+  .key.ok:focus{color:#000;background:var(--lime);box-shadow:0 0 30px rgba(200,255,61,.55)}
+  .key:active{transform:scale(.94)}
+
+  /* ---------- TOAST ---------- */
+  #toast{position:absolute;left:40px;right:40px;top:212px;z-index:20;padding:20px 24px;border-radius:28px;
+    background:#0d1803;border:3px solid var(--lime);box-shadow:0 0 40px rgba(200,255,61,.35);
+    transform:translateY(16px) scale(.92);opacity:0;pointer-events:none;transition:all .28s cubic-bezier(.2,1.4,.4,1)}
+  #toast.show{opacity:1;transform:none}
+  #toast.warn{border-color:var(--pink);background:#1d0612;box-shadow:0 0 40px rgba(255,79,179,.3)}
+  #toast .hd{display:flex;align-items:center;gap:12px;font-size:28px;font-weight:900;color:var(--lime)}
+  #toast.warn .hd{color:var(--pink)}
+  #toast .hd .tick{width:40px;height:40px;border-radius:50%;background:var(--lime);display:grid;place-items:center;color:#000;font-size:26px}
+  #toast.warn .hd .tick{background:var(--pink)}
+  #toast .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  #toast .chip{font-size:19px;font-weight:700;padding:6px 14px;border-radius:999px;background:#1f2a10;border:2px solid currentColor}
+  .burst{position:absolute;width:10px;height:10px;border-radius:50%;z-index:19;pointer-events:none;animation:burst .8s ease-out forwards}
+  @keyframes burst{to{transform:translate(var(--dx),var(--dy)) scale(.2);opacity:0}}
+
+  /* ---------- LIST ---------- */
+  #list{padding:22px 16px 0}
+  .lhead{display:flex;align-items:center;gap:16px;flex:none;height:88px;padding:0 10px}
+  #back{height:72px;padding:0 22px 0 16px;border-radius:24px;background:var(--panel);border:3px solid #262a3e;
+        font-size:22px;font-weight:800;display:flex;align-items:center;gap:6px;transition:all .18s}
+  #back:focus{border-color:var(--cyan);box-shadow:0 0 0 5px rgba(61,232,255,.15);color:var(--cyan)}
+  .ltitle{flex:1}
+  .ltitle .t{font-size:30px;font-weight:900;letter-spacing:-.5px}
+  .ltitle .s{font-size:17px;color:var(--muted);font-weight:700;margin-top:2px}
+  .prog{width:72px;height:72px;position:relative;flex:none}
+  .prog svg{width:72px;height:72px;transform:rotate(-90deg)}
+  .prog span{position:absolute;inset:0;display:grid;place-items:center;font-size:17px;font-weight:900}
+
+  #scroller{flex:1;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;padding:8px 14px 40px;margin-top:6px;
+            -webkit-mask-image:linear-gradient(#000 88%,transparent);mask-image:linear-gradient(#000 88%,transparent)}
+  #scroller::-webkit-scrollbar{display:none}
+  .cat{position:sticky;top:-8px;z-index:2;background:var(--bg);display:flex;align-items:center;gap:10px;
+       font-size:17px;font-weight:900;letter-spacing:1.4px;text-transform:uppercase;padding:14px 6px 8px}
+  .cat .pill{width:30px;height:30px;border-radius:10px;display:grid;place-items:center}
+  .cat .pill svg{width:18px;height:18px}
+  .cat .n{margin-left:auto;color:var(--muted);letter-spacing:0}
+  .item{display:flex;align-items:center;gap:18px;width:100%;min-height:88px;padding:10px 20px;margin:6px 0;border-radius:24px;
+        background:var(--panel);border:3px solid transparent;text-align:left;scroll-margin:90px 0 70px;
+        transition:transform .16s ease,border-color .16s ease,background .16s ease,opacity .3s ease}
+  .item:focus{border-color:var(--cc);background:var(--panel2);transform:scale(1.025);box-shadow:0 0 26px color-mix(in srgb,var(--cc) 35%,transparent)}
+  .box{width:44px;height:44px;border-radius:14px;border:3px solid var(--cc);flex:none;display:grid;place-items:center;transition:all .2s}
+  .box svg{width:28px;height:28px;opacity:0;transform:scale(.3);transition:all .25s cubic-bezier(.2,1.6,.4,1)}
+  .qty{font-size:24px;font-weight:900;color:var(--cc);flex:none}
+  .nm{font-size:27px;font-weight:800;line-height:1.15;flex:1;word-break:break-word}
+  .item.bought{opacity:.36;background:transparent}
+  .item.bought:focus{opacity:.75}
+  .item.bought .box{background:var(--cc)}
+  .item.bought .box svg{opacity:1;transform:none}
+  .item.bought .nm{text-decoration:line-through;text-decoration-thickness:3px}
+  .item.pop .box{animation:pop .35s ease}
+  @keyframes pop{50%{transform:scale(1.35)}}
+  .empty{text-align:center;margin-top:90px;color:var(--muted);font-size:24px;font-weight:700;line-height:1.5}
+  .empty b{color:var(--lime);display:block;font-size:34px;margin-bottom:8px}
+  .lfoot{position:absolute;left:0;right:0;bottom:10px;text-align:center;font-size:15px;color:#5d6380;font-weight:700;pointer-events:none}
+
+  /* ---------- MODAL ---------- */
+  #modal{position:absolute;inset:0;z-index:30;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.82)}
+  #modal.show{display:flex}
+  .mcard{width:520px;padding:34px 30px 30px;border-radius:36px;background:#0f1120;border:3px solid #2b3050;text-align:center;
+         animation:mIn .28s cubic-bezier(.2,1.4,.4,1)}
+  @keyframes mIn{from{transform:scale(.85);opacity:0}}
+  .mcard .q{font-size:31px;font-weight:900;line-height:1.2}
+  .mcard .sub{font-size:19px;color:var(--muted);margin-top:10px;font-weight:600}
+  .mbtns{display:flex;gap:16px;margin-top:28px}
+  .mbtn{flex:1;height:92px;border-radius:26px;font-size:25px;font-weight:900;background:var(--panel2);border:3px solid #2b3050;transition:all .16s}
+  .mbtn:focus{transform:scale(1.04)}
+  .mbtn.yes:focus{background:var(--lime);border-color:var(--lime);color:#000;box-shadow:0 0 30px rgba(200,255,61,.4)}
+  .mbtn.no:focus{background:var(--pink);border-color:var(--pink);color:#000;box-shadow:0 0 30px rgba(255,79,179,.4)}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HOME -->
+  <section id="home" class="view active" aria-label="Add items">
+    <div class="brand">
+      <svg viewBox="0 0 86 44" aria-hidden="true">
+        <circle class="lens" cx="20" cy="22" r="17" fill="none" stroke="#C8FF3D" stroke-width="5"/>
+        <circle class="lens r" cx="66" cy="22" r="17" fill="none" stroke="#3DE8FF" stroke-width="5"/>
+        <path d="M37 19 Q43 13 49 19" fill="none" stroke="#F4F6FF" stroke-width="4" stroke-linecap="round"/>
+        <path d="M12 22 l6 6 l10 -12" fill="none" stroke="#C8FF3D" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M66 14 v16 M58 22 h16" stroke="#3DE8FF" stroke-width="5" stroke-linecap="round"/>
+        <path class="spark" d="M82 2 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2z" fill="#FF4FB3"/>
+      </svg>
+      <div>
+        <div class="word">Shop<b>tics</b></div>
+      </div>
+    </div>
+    <div class="tag">See it. Say it. Sorted.</div>
+
+    <div class="say-wrap">
+      <span class="mic" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="9" y="2.5" width="6" height="12" rx="3" fill="#000"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3.5"/>
+        </svg>
+      </span>
+      <input id="say" class="focusable" type="text" inputmode="text" autocomplete="off" autocorrect="on"
+             enterkeyhint="done" placeholder="Say it!" aria-label="Say or type items to add">
+    </div>
+    <div class="hint" id="hint">Tap, then say "two pineapples, six beers and some loo roll"</div>
+    <button id="typeIt" class="focusable" aria-label="Type an item instead">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="2.5" y="6" width="19" height="12" rx="2.5"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg>
+      Type it instead
+    </button>
+
+    <button id="openList" class="focusable" aria-label="Open shopping list">
+      <span class="lst-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.8" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg></span>
+      <span class="lst-txt"><span class="t">My List</span><span class="s" id="listSub">Nothing yet</span></span>
+      <span class="dots" id="dots"></span>
+      <span class="chev">›</span>
+    </button>
+  </section>
+
+  <!-- LIST -->
+  <section id="list" class="view" aria-label="Shopping list">
+    <div class="lhead">
+      <button id="back" class="focusable" aria-label="Back">‹ Back</button>
+      <div class="ltitle"><div class="t">Shopping List</div><div class="s" id="lsub"></div></div>
+      <div class="prog">
+        <svg viewBox="0 0 72 72"><circle cx="36" cy="36" r="30" fill="none" stroke="#1f2335" stroke-width="7"/>
+          <circle id="progArc" cx="36" cy="36" r="30" fill="none" stroke="#C8FF3D" stroke-width="7" stroke-linecap="round" stroke-dasharray="188.5" stroke-dashoffset="188.5" style="transition:stroke-dashoffset .4s"/></svg>
+        <span id="progTxt">0%</span>
+      </div>
+    </div>
+    <div id="scroller"></div>
+    <div class="lfoot">Select to tick · Right to remove</div>
+  </section>
+
+  <!-- MANUAL ADD -->
+  <section id="manual" class="view" aria-label="Type an item">
+    <div class="mstep on" id="mStep1">
+      <div class="mtop"><button class="back2" id="mCancel">‹ Cancel</button><span class="stepn">1 of 2</span></div>
+      <div class="mq">What is the <b>item?</b></div>
+      <input id="mItem" type="text" inputmode="text" autocomplete="off" autocapitalize="words" enterkeyhint="next" placeholder="e.g. Lemons" aria-label="What is the item?">
+      <button id="mNext">Next ›</button>
+    </div>
+    <div class="mstep" id="mStep2">
+      <div class="qwrap">
+        <div class="qleft">
+          <button class="back2" id="mBack2" style="align-self:flex-start">‹ Back</button>
+          <div class="mq" style="margin-top:20px">How <b>many?</b></div>
+          <div class="qname" id="qName"></div>
+          <div id="qDisp" class="ph">1</div>
+        </div>
+        <div class="pad" id="pad">
+          <button class="key" data-k="1">1</button><button class="key" data-k="2">2</button><button class="key" data-k="3">3</button>
+          <button class="key" data-k="4">4</button><button class="key" data-k="5">5</button><button class="key" data-k="6">6</button>
+          <button class="key" data-k="7">7</button><button class="key" data-k="8">8</button><button class="key" data-k="9">9</button>
+          <button class="key del" data-k="del" aria-label="Delete">⌫</button><button class="key" data-k="0">0</button><button class="key ok" data-k="ok">Add ✓</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="toast"><div class="hd"><span class="tick">✓</span><span id="toastHd">Added!</span></div><div class="chips" id="toastChips"></div></div>
+
+  <div id="modal" role="dialog" aria-modal="true">
+    <div class="mcard">
+      <div class="q" id="mQ"></div>
+      <div class="sub" id="mSub"></div>
+      <div class="mbtns">
+        <button class="mbtn yes" id="mYes"></button>
+        <button class="mbtn no" id="mNo"></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* =========================================================
+   CATEGORIES
+   ========================================================= */
+var CATS = [
+  {id:"produce",   name:"Produce",             color:"var(--c-produce)",   hex:"#7CFF6B",
+   icon:'<path d="M12 21c-4.5 0-7-3.5-7-7.5C5 9 8 6.5 12 6.5s7 2.5 7 7c0 4-2.5 7.5-7 7.5z"/><path d="M12 6.5C12 4 13.5 2.5 16 2.5"/>'},
+  {id:"dairy",     name:"Dairy & Eggs",        color:"var(--c-dairy)",     hex:"#FFF06A",
+   icon:'<path d="M9 2.5h6M9.5 2.5v3L7 9v11.5h10V9l-2.5-3.5v-3"/><path d="M7 13h10"/>'},
+  {id:"pantry",    name:"Pantry & Dry Goods",  color:"var(--c-pantry)",    hex:"#FFB347",
+   icon:'<rect x="5" y="7" width="14" height="14" rx="2.5"/><path d="M7 3.5h10v3.5H7z"/>'},
+  {id:"meat",      name:"Meat & Seafood",      color:"var(--c-meat)",      hex:"#FF6B6B",
+   icon:'<path d="M3 12c3-5 9-6 13-3l5-3v12l-5-3c-4 3-10 2-13-3z"/><circle cx="7.5" cy="11.5" r=".6" fill="#000"/>'},
+  {id:"household", name:"Household & Cleaning",color:"var(--c-household)", hex:"#5CE1FF",
+   icon:'<path d="M9 2.5h4v4H9zM8 6.5h6l1 4v10.5H7V10.5z"/><path d="M13 4.5h4l2 -1.5"/>'},
+  {id:"personal",  name:"Personal Care",       color:"var(--c-personal)",  hex:"#C59BFF",
+   icon:'<path d="M12 2.5s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/>'},
+  {id:"treats",    name:"Treats",              color:"var(--c-treats)",    hex:"#FF5FC8",
+   icon:'<path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"/>'},
+  {id:"other",     name:"Other",               color:"var(--c-other)",     hex:"#C9CCDA",
+   icon:'<circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/>'}
+];
+var CAT_BY_ID = {}; CATS.forEach(function(c){CAT_BY_ID[c.id]=c;});
+
+var KEYWORDS = {
+  produce: "apple, banana, orange, lemon, lime, grape, pear, peach, plum, nectarine, apricot, cherry, strawberry, raspberry, blueberry, blackberry, berry, melon, watermelon, cantaloupe, pineapple, mango, kiwi, avocado, tomato, cherry tomato, potato, new potato, sweet potato, onion, red onion, spring onion, garlic, ginger, carrot, parsnip, turnip, swede, beetroot, celery, cucumber, lettuce, iceberg, spinach, kale, cabbage, broccoli, cauliflower, courgette, zucchini, aubergine, eggplant, pepper, bell pepper, red pepper, green pepper, yellow pepper, chilli, chili, jalapeno, mushroom, pea, mangetout, sugar snap, green bean, runner bean, broad bean, sweetcorn, corn on the cob, leek, asparagus, radish, rocket, salad, bag of salad, herb, basil, coriander, cilantro, parsley, mint, rosemary, thyme, sage, dill, chive, fruit, veg, veggie, vegetable, sprout, brussels sprout, squash, butternut squash, pumpkin, fig, pomegranate, grapefruit, satsuma, clementine, tangerine, rhubarb, coconut, lemongrass, shallot, bean sprout, pak choi, bok choy, celeriac, artichoke, fennel, okra, watercress, plantain, passion fruit, papaya, lychee",
+  dairy: "milk, semi skimmed, whole milk, skimmed milk, cheese, cheddar, mozzarella, parmesan, brie, camembert, feta, halloumi, stilton, gouda, edam, butter, yoghurt, yogurt, greek yoghurt, greek yogurt, cream, double cream, single cream, whipping cream, clotted cream, sour cream, creme fraiche, cream cheese, cottage cheese, egg, free range egg, custard, margarine, spread, oat milk, almond milk, soy milk, soya milk, coconut yoghurt, kefir, fromage frais, ghee, mascarpone, ricotta, buttermilk, quark, paneer, dairy",
+  pantry: "cereal, cornflake, granola, muesli, porridge, porridge oat, oat, weetabix, rice, basmati, pasta, spaghetti, penne, fusilli, macaroni, tagliatelle, linguine, noodle, lasagne, lasagna, flour, plain flour, self raising flour, sugar, icing sugar, brown sugar, salt, black pepper, peppercorn, spice, cumin, paprika, cinnamon, turmeric, nutmeg, curry, curry powder, curry paste, oregano, mixed herb, stock, stock cube, oxo, gravy, gravy granule, soup, tin, tinned, can, canned, baked bean, bean, chickpea, lentil, kidney bean, butter bean, black bean, tuna, tinned tomato, chopped tomato, passata, tomato puree, tomato paste, ketchup, tomato ketchup, brown sauce, mayo, mayonnaise, mustard, vinegar, balsamic, oil, olive oil, vegetable oil, sunflower oil, soy sauce, sauce, pasta sauce, pesto, salsa, jam, marmalade, honey, peanut butter, nutella, syrup, maple syrup, golden syrup, bread, loaf, sliced bread, bread roll, roll, bun, bagel, wrap, tortilla, pitta, pitta bread, naan, crumpet, cracker, crispbread, rice cake, oatcake, tea, tea bag, teabag, coffee, instant coffee, coffee bean, juice, orange juice, apple juice, water, sparkling water, still water, bottled water, cordial, squash, drink, couscous, cous cous, quinoa, bulgur, baking powder, bicarbonate, yeast, cocoa, nut, almond, cashew, peanut, walnut, raisin, sultana, dried fruit, seed, breadcrumb, crouton, stuffing, frozen, frozen pea, pizza, oven chip, chip, fries, hash brown, tofu, hummus, houmous, salad cream, coconut milk, evaporated milk, condensed milk, vanilla extract, stock pot, baby food, jelly, gelatine, olive, pickle, gherkin, chutney, relish, beetroot, jar",
+  meat: "chicken, chicken breast, chicken thigh, chicken wing, whole chicken, beef mince, minced beef, mince, steak, sirloin, ribeye, pork, pork chop, pork belly, lamb, lamb chop, bacon, sausage, chipolata, ham, turkey, duck, gammon, salami, chorizo, pepperoni, burger, meatball, prawn, king prawn, shrimp, salmon, smoked salmon, cod, haddock, tuna steak, fish, fish finger, fish fillet, fish and chip, mackerel, sardine, crab, lobster, mussel, scallop, squid, calamari, venison, veal, liver, meat, rib, brisket, joint, roast, pastrami, prosciutto, parma ham, trout, sea bass, seabass, tilapia, quorn, kebab, hot dog, frankfurter, black pudding, pate",
+  household: "paper towel, kitchen roll, kitchen towel, toilet roll, toilet paper, loo roll, bog roll, tissue, detergent, washing powder, washing liquid, laundry liquid, laundry, fabric softener, softener, bleach, cleaner, surface cleaner, spray, surface spray, bin bag, bin liner, trash bag, rubbish bag, garbage bag, sponge, scourer, cloth, dish cloth, foil, tin foil, aluminium foil, cling film, baking paper, greaseproof paper, sandwich bag, freezer bag, light bulb, bulb, battery, dishwasher tablet, dishwasher salt, rinse aid, washing up liquid, dish soap, polish, furniture polish, air freshener, candle, match, lighter, disinfectant, antibacterial, cleaning wipe, wipe, dog food, cat food, cat litter, pet food, dog treat, bird seed, rubber glove, glove, paper plate, napkin, straw, peg, mop, broom, duster, limescale, descaler, drain unblocker, toilet cleaner, toilet bleach, glass cleaner, window cleaner, hoover bag, vacuum bag, fuse",
+  personal: "shampoo, conditioner, soap, hand soap, hand wash, body wash, shower gel, bubble bath, toothpaste, toothbrush, mouthwash, floss, dental floss, deodorant, antiperspirant, razor, razor blade, shaving foam, shaving gel, shaving cream, moisturiser, moisturizer, lotion, body lotion, sun cream, suncream, sunscreen, after sun, lip balm, plaster, paracetamol, ibuprofen, aspirin, painkiller, medicine, cold and flu, lemsip, vitamin, tampon, sanitary towel, sanitary pad, panty liner, nappy, diaper, baby wipe, cotton bud, cotton wool, cotton pad, hair gel, hairspray, hair spray, hair dye, hair wax, makeup, make up, mascara, foundation, nail varnish, nail polish, nail polish remover, contact lens solution, hand cream, face wash, cleanser, toner, face cream, perfume, aftershave, cologne, dry shampoo, hair tie, bobby pin, earplug, eye drop, antacid, rennie, gaviscon, hay fever tablet, allergy tablet, condom",
+  treats: "beer, lager, ale, stout, bitter, ipa, cider, wine, red wine, white wine, rose, prosecco, champagne, cava, fizz, gin, tonic, vodka, whisky, whiskey, bourbon, rum, tequila, brandy, port, sherry, vermouth, liqueur, baileys, pimms, alcohol, booze, can of beer, chocolate, chocolate bar, dark chocolate, milk chocolate, sweet, sweetie, candy, crisp, pringle, dorito, tortilla chip, biscuit, cookie, digestive, hobnob, jaffa cake, cake, cupcake, doughnut, donut, brownie, flapjack, ice cream, ice lolly, lolly, popcorn, haribo, jelly baby, jelly bean, wine gum, dessert, pudding, cheesecake, tiramisu, trifle, fizzy drink, cola, coke, pepsi, lemonade, pop, energy drink, red bull, snack, dip, toffee, fudge, marshmallow, chewing gum, gum, mint, imperial, treat, pastry, croissant, pain au chocolat, danish, cookie dough, nachos, salted nut, pork scratching"
+};
+// Comma-separated phrases. Longest match wins, then the last word (the "head noun"): "milk chocolate" → Treats, "peanut butter" → Pantry.
+
+var IE_WORDS = {cookies:1,brownies:1,veggies:1,smoothies:1,pies:1,sweeties:1,goodies:1,rotis:1,hoagies:1,ties:1,calories:1};
+function singular(w){
+  if (w.length <= 3) return w;
+  if (/(ss|us|is|ous)$/.test(w)) return w;
+  if (IE_WORDS[w]) return w.slice(0,-1);
+  if (/ies$/.test(w)) return w.slice(0,-3)+"y";
+  if (/(oes)$/.test(w)) return w.slice(0,-2);
+  if (/(ches|shes|xes|sses|zes)$/.test(w)) return w.slice(0,-2);
+  if (/ves$/.test(w) && w !== "olives" && w !== "chives") return w.slice(0,-3)+"f"; // loaves→loaf, halves
+  if (/s$/.test(w)) return w.slice(0,-1);
+  return w;
+}
+function tokens(str){
+  return str.toLowerCase().replace(/[’']/g,"").replace(/[^a-z0-9]+/g," ").trim().split(" ").filter(Boolean).map(singular);
+}
+
+// Build phrase index: split keyword strings into phrases. Multi-word phrases are listed
+// joined by spaces, so we need an explicit phrase list: we split on double knowledge —
+// every 1, 2 or 3 word window of the keyword string that is a "known phrase".
+var PHRASES = []; // {t:[tokens], cat}
+Object.keys(KEYWORDS).forEach(function(cat){
+  KEYWORDS[cat].split(",").forEach(function(k){ var t = tokens(k); if (t.length) PHRASES.push({t:t, cat:cat}); });
+});
+// explicit overrides for phrases that would otherwise land in the wrong aisle
+var EXTRA = {"chocolate milk":"dairy","fabric conditioner":"household","washing up":"household",
+             "salt and vinegar":"treats","cheese and onion":"treats","cookies and cream":"treats"};
+Object.keys(EXTRA).forEach(function(k){ PHRASES.push({t:tokens(k),cat:EXTRA[k],boost:1}); });
+
+function categorise(name){
+  var t = tokens(name);
+  var best = null;
+  PHRASES.forEach(function(p){
+    var n = p.t.length;
+    for (var i=0;i+n<=t.length;i++){
+      var ok = true;
+      for (var j=0;j<n;j++){ if (t[i+j]!==p.t[j]) { ok=false; break; } }
+      if (ok){
+        var score = n*100 + (p.boost?50:0) + (i+n); // longer wins, then later (head noun) wins
+        if (!best || score > best.score) best = {score:score, cat:p.cat};
+      }
+    }
+  });
+  return best ? best.cat : "other";
+}
+
+/* =========================================================
+   VOICE / TEXT PARSER
+   ========================================================= */
+var NUMS = {one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,
+  fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90,
+  a:1,an:1,single:1,dozen:12,couple:2,pair:2,few:0,some:0,several:0,"to":2,"too":2,"for":4,"won":1};
+// "to/too/for/won" are common dictation mishearings of two/four/one — only used when followed by more words
+
+var PROTECT = ["fish and chips","mac and cheese","macaroni and cheese","salt and vinegar","cheese and onion","sweet and sour",
+  "bread and butter","gin and tonic","rum and raisin","fruit and nut","ham and cheese","strawberries and cream","cookies and cream",
+  "oil and vinegar","peaches and cream","pie and mash","cold and flu","black and white","head and shoulders","marks and spencer",
+  "washing up and","bubble and squeak","rock and roll"];
+
+function parseItems(raw){
+  if (!raw) return [];
+  var s = " " + String(raw).toLowerCase().replace(/[’]/g,"'").replace(/\s+/g," ") + " ";
+  s = s.replace(/[!?]+/g, ",");
+  // protect compound names
+  var holds = [];
+  PROTECT.forEach(function(p){
+    var re = new RegExp("\\b"+p.replace(/ /g,"\\s+")+"\\b","g");
+    s = s.replace(re, function(m){ holds.push(m); return " §"+(holds.length-1)+"§ "; });
+  });
+  // separators
+  s = s.replace(/\.(\s|$)/g, ",$1")
+       .replace(/\s*(,|;|\n)\s*/g, "|")
+       .replace(/\s(?:and also|and then|and|also|plus|then|as well as|&|oh and)\s/g, "|");
+  var parts = s.split("|");
+  var out = [];
+  parts.forEach(function(part){
+    part = part.replace(/§(\d+)§/g, function(_,i){ return holds[+i]; }).trim();
+    if (!part) return;
+    var it = parseOne(part);
+    if (it) out.push(it);
+  });
+  return out;
+}
+
+var LEADING_FILLER = /^(?:(?:oh|um+|uh+|er+|okay|ok|right|so|and|also|please|i need|we need|need|i want|we want|get|buy|grab|pick up|add|put|remember|don't forget|dont forget|some more|more|some|any|the|of|to the list|on the list)\s+)+/;
+var TRAILING_FILLER = /\s+(?:please|thanks|thank you|as well|too|to the list|on the list|to my list|for me)$/;
+
+function parseOne(text){
+  var t = text.replace(/\s+/g," ").replace(LEADING_FILLER, "").replace(TRAILING_FILLER,"").replace(TRAILING_FILLER,"").trim();
+  if (!t) return null;
+  var qty = 0, m;
+
+  // "x2" / "times 2" at end
+  if ((m = t.match(/\s(?:x|times)\s?(\d+)$/))) { qty = +m[1]; t = t.slice(0, m.index).trim(); }
+
+  // digit quantity at start: "2", "2x", "2 x"
+  if (!qty && (m = t.match(/^(\d+)\s*(?:x\s+|x(?=[a-z])|\s)/))) { qty = +m[1]; t = t.slice(m[0].length).trim(); }
+  // word quantity at start (handles "twenty four", "half a dozen", "a couple of", "a dozen")
+  if (!qty) {
+    if ((m = t.match(/^half (?:a )?dozen\s+(?:of\s+)?/))) { qty = 6; t = t.slice(m[0].length); }
+    else if ((m = t.match(/^(?:a |one )?dozen\s+(?:of\s+)?/))) { qty = 12; t = t.slice(m[0].length); }
+    else if ((m = t.match(/^(?:a )?(couple|pair|few|bunch|load|lot)s?\s+(?:of\s+)?/))) {
+      qty = (m[1]==="couple"||m[1]==="pair") ? 2 : 0; t = t.slice(m[0].length);
+    } else {
+      var words = t.split(" ");
+      var w0 = words[0], w1 = words[1];
+      if (words.length > 1 && NUMS.hasOwnProperty(w0)) {
+        var n = NUMS[w0], used = 1;
+        if (n >= 20 && n % 10 === 0 && NUMS.hasOwnProperty(w1) && NUMS[w1] > 0 && NUMS[w1] < 10 && words.length > 2) { n += NUMS[w1]; used = 2; }
+        if ((w0==="to"||w0==="too"||w0==="for"||w0==="won") && words.length < 2) { n = 0; used = 0; }
+        qty = (w0==="a"||w0==="an"||w0==="single") ? 0 : n;
+        t = words.slice(used).join(" ");
+        // "a dozen eggs" after "a"
+        if ((m = t.match(/^dozen\s+(?:of\s+)?/))) { qty = 12; t = t.slice(m[0].length); }
+        if ((m = t.match(/^(?:couple|pair)\s+(?:of\s+)?/))) { qty = 2; t = t.slice(m[0].length); }
+        if ((m = t.match(/^(\d+)\s+/)) && !qty) { qty = +m[1]; t = t.slice(m[0].length); }
+      }
+    }
+  }
+  t = t.replace(/^(?:of|some|more|x)\s+/,"").replace(LEADING_FILLER,"").trim();
+  if (!t || /^\d+$/.test(t)) return null;
+  if (qty === 1) qty = 0; // "one bread" reads better as just "Bread"
+  var name = titleCase(t);
+  return { name:name, qty:qty||0, key:tokens(t).join(" "), cat:categorise(t) };
+}
+
+var SMALL = {of:1,and:1,"in":1,on:1,"for":1,the:1,a:1,with:1,au:1};
+function titleCase(s){
+  return s.split(" ").map(function(w,i){
+    if (i>0 && SMALL[w]) return w;
+    return w.charAt(0).toUpperCase()+w.slice(1);
+  }).join(" ");
+}
+
+/* =========================================================
+   STATE (localStorage)
+   ========================================================= */
+var STORE_KEY = "shoptics.v1";
+var items = [];
+function load(){ try { items = JSON.parse(localStorage.getItem(STORE_KEY)) || []; } catch(e){ items = []; } }
+function save(){ try { localStorage.setItem(STORE_KEY, JSON.stringify(items)); } catch(e){} }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+
+function addParsed(list){
+  var added = [];
+  list.forEach(function(p){
+    var ex = null;
+    for (var i=0;i<items.length;i++){ if (items[i].key === p.key){ ex = items[i]; break; } }
+    if (ex){
+      if (ex.bought){ ex.bought = false; ex.qty = p.qty; }
+      else if (p.qty || ex.qty){ ex.qty = (ex.qty||1) + (p.qty||1); }
+      ex.name = p.name;
+      added.push(ex);
+    } else {
+      var it = {id:uid(), name:p.name, key:p.key, qty:p.qty, cat:p.cat, bought:false, t:Date.now()};
+      items.push(it); added.push(it);
+    }
+  });
+  save();
+  return added;
+}
+function label(it){ return (it.qty ? it.qty+" × " : "") + it.name; }
+
+/* =========================================================
+   UI
+   ========================================================= */
+var $ = function(id){ return document.getElementById(id); };
+var app = $("app"), say = $("say"), toast = $("toast");
+var view = "home";
+var modalState = null; // {q, sub, yes, no, onYes, returnFocus}
+var lastFocusInList = null;
+var homeFocus = null;
+
+function show(v){
+  view = v;
+  $("home").classList.toggle("active", v==="home");
+  $("list").classList.toggle("active", v==="list");
+  $("manual").classList.toggle("active", v==="manual");
+  if (v==="home"){ renderHome(); (homeFocus || say).focus(); homeFocus = null; }
+  else if (v==="manual"){ /* handled by manualStep() */ }
+  else { renderList(); var f = lastFocusInList && document.querySelector('.item[data-id="'+lastFocusInList+'"]');
+         (f || document.querySelector(".item") || $("back")).focus(); }
+}
+
+function renderHome(){
+  var left = items.filter(function(i){return !i.bought;}).length;
+  var got = items.length - left;
+  $("listSub").textContent = items.length ? (left+" to get" + (got ? " · "+got+" in basket" : "")) : "Nothing yet — say something!";
+  var dots = $("dots"); dots.innerHTML = "";
+  CATS.forEach(function(c){
+    if (items.some(function(i){return i.cat===c.id && !i.bought;})){
+      var d = document.createElement("i"); d.style.background = c.hex; dots.appendChild(d);
+    }
+  });
+}
+
+function renderList(){
+  var sc = $("scroller"); sc.innerHTML = "";
+  var left = items.filter(function(i){return !i.bought;}).length;
+  var pct = items.length ? Math.round((items.length-left)/items.length*100) : 0;
+  $("lsub").textContent = items.length ? (left ? left+" left to grab" : "All done — nice!") : "Empty";
+  $("progArc").style.strokeDashoffset = 188.5*(1-pct/100);
+  $("progTxt").textContent = pct+"%";
+  if (!items.length){
+    sc.innerHTML = '<div class="empty"><b>All clear!</b>Go back and say what you need.</div>';
+    return;
+  }
+  CATS.forEach(function(c){
+    var list = items.filter(function(i){return i.cat===c.id;});
+    if (!list.length) return;
+    var h = document.createElement("div");
+    h.className = "cat"; h.style.color = c.hex; h.dataset.cat = c.id;
+    var remaining = list.filter(function(i){return !i.bought;}).length;
+    h.innerHTML = '<span class="pill" style="background:'+c.hex+'"><svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">'+c.icon+'</svg></span>'+
+                  esc(c.name)+'<span class="n">'+remaining+'/'+list.length+'</span>';
+    sc.appendChild(h);
+    list.forEach(function(it){
+      var b = document.createElement("button");
+      b.className = "item focusable"+(it.bought?" bought":"");
+      b.dataset.id = it.id;
+      b.style.setProperty("--cc", c.hex);
+      b.setAttribute("aria-label", label(it)+(it.bought?", in basket":""));
+      b.innerHTML = '<span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>'+
+                    (it.qty ? '<span class="qty">'+it.qty+'×</span>' : '')+
+                    '<span class="nm">'+esc(it.name)+'</span>';
+      sc.appendChild(b);
+    });
+  });
+}
+function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
+function findItem(id){ for (var i=0;i<items.length;i++) if (items[i].id===id) return items[i]; return null; }
+
+function refreshItem(id){
+  var it = findItem(id); var el = document.querySelector('.item[data-id="'+id+'"]');
+  if (!el || !it) return;
+  el.classList.toggle("bought", it.bought);
+  el.classList.remove("pop"); void el.offsetWidth; el.classList.add("pop");
+  el.setAttribute("aria-label", label(it)+(it.bought?", in basket":""));
+  // update counters without rebuilding (keeps focus & scroll)
+  var left = items.filter(function(i){return !i.bought;}).length;
+  var pct = Math.round((items.length-left)/items.length*100);
+  $("lsub").textContent = left ? left+" left to grab" : "All done — nice!";
+  $("progArc").style.strokeDashoffset = 188.5*(1-pct/100);
+  $("progTxt").textContent = pct+"%";
+  var heads = document.querySelectorAll(".cat");
+  heads.forEach(function(h){
+    var c = CAT_BY_ID[h.dataset.cat]; if (!c) return;
+    var list = items.filter(function(i){return i.cat===c.id;});
+    h.querySelector(".n").textContent = list.filter(function(i){return !i.bought;}).length+"/"+list.length;
+  });
+}
+
+function onItemActivate(el){
+  var it = findItem(el.dataset.id); if (!it) return;
+  lastFocusInList = it.id;
+  if (!it.bought){
+    it.bought = true; save(); refreshItem(it.id);
+  } else {
+    openModal({
+      q: "Put “"+label(it)+"” back on the list?",
+      sub: "Handy if it was leaking, damaged or out of date.",
+      yes: "Yes, re-add", no: "No",
+      defaultYes: true,
+      onYes: function(){ it.bought = false; save(); refreshItem(it.id); },
+      returnFocus: el
+    });
+  }
+}
+
+function onItemRemove(el){
+  var it = findItem(el.dataset.id); if (!it) return;
+  openModal({
+    q: "Remove “"+label(it)+"”?",
+    sub: "It'll be deleted from the list.",
+    yes: "Remove", no: "Keep it",
+    defaultYes: false,
+    onYes: function(){
+      var idx = items.indexOf(it);
+      var nextId = null, els = Array.prototype.slice.call(document.querySelectorAll(".item"));
+      var pos = els.indexOf(el); var n = els[pos+1] || els[pos-1]; if (n) nextId = n.dataset.id;
+      items.splice(idx,1); save(); lastFocusInList = nextId; renderList();
+      var f = nextId && document.querySelector('.item[data-id="'+nextId+'"]'); (f || $("back")).focus();
+      return true; // focus handled
+    },
+    returnFocus: el
+  });
+}
+
+/* ---------- leaving the list ---------- */
+function exitList(){
+  var bought = items.filter(function(i){return i.bought;});
+  show("home");
+  if (!bought.length) return;
+  openModal({
+    q: "Clear the "+bought.length+" ticked item"+(bought.length>1?"s":"")+"?",
+    sub: "Unticked items stay on your list.",
+    yes: "Yes, clear", no: "Keep them",
+    defaultYes: true,
+    onYes: function(){ items = items.filter(function(i){return !i.bought;}); save(); renderHome(); flash("Cleared!", [], false); },
+    returnFocus: say
+  });
+}
+
+/* ---------- modal ---------- */
+function openModal(o){
+  modalState = o;
+  $("mQ").textContent = o.q; $("mSub").textContent = o.sub || "";
+  $("mYes").textContent = o.yes; $("mNo").textContent = o.no;
+  $("modal").classList.add("show");
+  (o.defaultYes ? $("mYes") : $("mNo")).focus();
+}
+var modalClosedAt = 0;
+function closeModal(choice){
+  var o = modalState; if (!o) return;
+  modalState = null; modalClosedAt = Date.now();
+  $("modal").classList.remove("show");
+  var handled = false;
+  if (choice && o.onYes) handled = o.onYes();
+  if (!handled && o.returnFocus && document.body.contains(o.returnFocus)) o.returnFocus.focus();
+  else if (!handled) (view==="home" ? say : ($("back"))).focus();
+}
+$("mYes").addEventListener("click", function(){ closeModal(true); });
+$("mNo").addEventListener("click", function(){ closeModal(false); });
+
+/* ---------- toast ---------- */
+var toastT;
+function flash(head, its, warn){
+  $("toastHd").textContent = head;
+  toast.classList.toggle("warn", !!warn);
+  toast.querySelector(".tick").textContent = warn ? "?" : "✓";
+  var ch = $("toastChips"); ch.innerHTML = "";
+  (its||[]).slice(0,6).forEach(function(it){
+    var s = document.createElement("span"); s.className = "chip";
+    s.style.color = CAT_BY_ID[it.cat].hex; s.textContent = label(it); ch.appendChild(s);
+  });
+  if (its && its.length > 6){ var m = document.createElement("span"); m.className="chip"; m.style.color="#fff"; m.textContent="+"+(its.length-6)+" more"; ch.appendChild(m); }
+  toast.classList.add("show");
+  clearTimeout(toastT); toastT = setTimeout(function(){ toast.classList.remove("show"); }, warn ? 2200 : 2800);
+  if (!warn && its && its.length) burst();
+}
+function burst(){
+  var cols = ["#C8FF3D","#3DE8FF","#FF4FB3","#FFF06A","#C59BFF"];
+  for (var i=0;i<18;i++){
+    var d = document.createElement("span"); d.className = "burst";
+    var a = Math.random()*Math.PI*2, r = 90+Math.random()*120;
+    d.style.left = "300px"; d.style.top = "250px"; d.style.background = cols[i%cols.length];
+    d.style.setProperty("--dx", Math.cos(a)*r+"px"); d.style.setProperty("--dy", Math.sin(a)*r+"px");
+    app.appendChild(d); setTimeout(d.remove.bind(d), 850);
+  }
+}
+
+/* ---------- adding (dictation/composer or keyboard) ---------- */
+var lastTyped = 0, inputT;
+function commit(){
+  clearTimeout(inputT);
+  var v = say.value.trim(); if (!v) return;
+  say.value = "";
+  var parsed = parseItems(v);
+  if (!parsed.length){ flash("Didn't catch that", [], true); return; }
+  var added = addParsed(parsed);
+  renderHome();
+  flash(added.length > 1 ? added.length+" items added!" : "Added!", added, false);
+  wake();
+}
+say.addEventListener("change", commit);
+say.addEventListener("input", function(){
+  wake();
+  // glasses composer sends text without per-key keydowns; commit after a short pause in that case
+  clearTimeout(inputT);
+  if (Date.now() - lastTyped > 1500) inputT = setTimeout(commit, 1200);
+});
+
+/* =========================================================
+   MANUAL ADD ("Type it instead"): item name → how many?
+   ========================================================= */
+var mItem = $("mItem"), mStep = 1, mQty = "", mParsed = null, unwinding = false;
+function openManual(){
+  mItem.value = ""; mQty = ""; mParsed = null;
+  try { history.pushState({v:"manual", step:1}, "", "#add"); } catch(e){}
+  show("manual"); manualStep(1);
+}
+function manualStep(n){
+  mStep = n;
+  $("mStep1").classList.toggle("on", n===1);
+  $("mStep2").classList.toggle("on", n===2);
+  if (n===1){ mItem.focus(); }
+  else { renderQty(); $("pad").querySelector('[data-k="1"]').focus(); }
+}
+function toQty(){
+  var v = mItem.value.trim();
+  if (!v){ mItem.focus(); flash("Type an item first", [], true); return; }
+  mParsed = parseOne(v.replace(/[,.;]+/g," "));
+  if (!mParsed){ flash("Type an item first", [], true); return; }
+  mQty = mParsed.qty ? String(mParsed.qty) : "";   // "6 eggs" pre-fills 6
+  var c = CAT_BY_ID[mParsed.cat];
+  $("qName").textContent = mParsed.name; $("qName").style.color = c.hex;
+  try { history.pushState({v:"manual", step:2}, "", "#add"); } catch(e){}
+  manualStep(2);
+}
+function renderQty(){
+  var d = $("qDisp");
+  d.classList.toggle("ph", !mQty);
+  d.innerHTML = (mQty || "1") + "<small>×</small>";
+}
+function padPress(k){
+  if (k === "ok"){ finishManual(); return; }
+  if (k === "del"){ mQty = mQty.slice(0,-1); }
+  else if (mQty.length < 3){ mQty = (mQty === "0" ? "" : mQty) + k; }
+  renderQty();
+}
+function finishManual(){
+  if (!mParsed) return;
+  var q = parseInt(mQty || "1", 10) || 1;
+  var p = {name:mParsed.name, key:mParsed.key, cat:mParsed.cat, qty: q > 1 ? q : 0};
+  // manual quantity replaces (rather than adds to) an existing unticked item of the same name
+  var ex = items.filter(function(i){ return i.key === p.key; })[0];
+  var added;
+  if (ex){ ex.bought = false; ex.qty = p.qty; ex.name = p.name; save(); added = [ex]; }
+  else added = addParsed([p]);
+  leaveManual(true);
+  flash("Added!", added, false);
+}
+function leaveManual(focusTypeIt){
+  // unwind the #add history entries so Back behaves normally afterwards
+  var depth = mStep === 2 ? 2 : 1;
+  homeFocus = $("typeIt");
+  if (history.state && history.state.v === "manual"){ unwinding = true; history.go(-depth); }
+  show("home");
+}
+$("typeIt").addEventListener("click", openManual);
+$("mCancel").addEventListener("click", function(){ leaveManual(false); });
+$("mBack2").addEventListener("click", function(){ history.back(); });
+$("mNext").addEventListener("click", toQty);
+mItem.addEventListener("change", function(){ if (mStep===1 && mItem.value.trim()) toQty(); });
+mItem.addEventListener("input", wake);
+$("pad").addEventListener("click", function(e){ var b = e.target.closest(".key"); if (b) padPress(b.dataset.k); });
+
+/* =========================================================
+   NAVIGATION (Neural Band → arrow keys / Enter / Escape)
+   ========================================================= */
+function focusables(){
+  if (modalState) return [$("mYes"), $("mNo")];
+  if (view==="home") return [say, $("typeIt"), $("openList")];
+  if (view==="manual") return mStep===1 ? [$("mCancel"), mItem, $("mNext")]
+                                        : [$("mBack2")].concat(Array.prototype.slice.call(document.querySelectorAll("#pad .key")));
+  return [$("back")].concat(Array.prototype.slice.call(document.querySelectorAll(".item")));
+}
+function move(dir){
+  var list = focusables(); var i = list.indexOf(document.activeElement);
+  if (i < 0){ list[0].focus(); return; }
+  var n = Math.max(0, Math.min(list.length-1, i+dir));
+  list[n].focus();
+  if (view==="list" && list[n].classList.contains("item")){
+    lastFocusInList = list[n].dataset.id;
+    list[n].scrollIntoView({block:"nearest", behavior:"smooth"});
+  }
+  if (view==="list" && list[n].id==="back") $("scroller").scrollTo({top:0, behavior:"smooth"});
+}
+
+var escTimer = null, popCount = 0;
+document.addEventListener("keydown", function(e){
+  var k = e.key;
+  if (k.length === 1) lastTyped = Date.now();
+  if (dimmed){ wake(); if (k !== "Shift") { e.preventDefault(); e.stopPropagation(); } return; } // first press just wakes the screen
+  wake();
+
+  var inSay = document.activeElement === say;
+  var inItem = document.activeElement === mItem;
+
+  if (k === "Escape" || (k === "Backspace" && !inSay && !inItem)){
+    e.preventDefault();
+    if (modalState){ closeModal(false); return; }
+    if (view === "list" || view === "manual"){
+      // The glasses shell may also call history.back() for the same Back gesture;
+      // only act ourselves if no popstate arrives first, so we never go back twice.
+      var seen = popCount;
+      clearTimeout(escTimer);
+      escTimer = setTimeout(function(){ if (popCount === seen) history.back(); }, 250);
+    }
+    return;
+  }
+  if (k === "Enter" && inSay){
+    if (say.value.trim()){ e.preventDefault(); commit(); }
+    return; // empty: let the glasses open the text composer
+  }
+  if (inItem){
+    if (k === "Enter" && mItem.value.trim()){ e.preventDefault(); toQty(); return; }
+    if (k === "Enter") return;                                   // empty: let the glasses open the keyboard
+    if ((k === "ArrowLeft" || k === "ArrowRight") && mItem.value) return; // caret moves on desktop
+  }
+  if (view === "manual" && mStep === 2 && !modalState){
+    if (/^[0-9]$/.test(k)){ e.preventDefault(); padPress(k); return; }   // desktop number keys
+    var keys = Array.prototype.slice.call(document.querySelectorAll("#pad .key"));
+    var ki = keys.indexOf(document.activeElement);
+    if (k.indexOf("Arrow") === 0){
+      e.preventDefault();
+      if (ki < 0){ if (k === "ArrowRight" || k === "ArrowDown") keys[0].focus(); return; }
+      var col = ki % 3, row = Math.floor(ki / 3), to = ki;
+      if (k === "ArrowRight" && col < 2) to = ki + 1;
+      if (k === "ArrowLeft"){ if (col > 0) to = ki - 1; else { $("mBack2").focus(); return; } }
+      if (k === "ArrowDown" && row < 3) to = ki + 3;
+      if (k === "ArrowUp"){ if (row > 0) to = ki - 3; else { $("mBack2").focus(); return; } }
+      keys[to].focus(); return;
+    }
+  }
+  if (k === "ArrowDown"){ e.preventDefault(); move(1); return; }
+  if (k === "ArrowUp"){ e.preventDefault(); move(-1); return; }
+  if (k === "ArrowLeft" || k === "ArrowRight"){
+    if (inSay && say.value) return; // allow caret moves while typing on desktop
+    e.preventDefault();
+    if (modalState){ move(k==="ArrowRight" ? 1 : -1); return; }
+    if (view==="list"){
+      var a = document.activeElement;
+      if (k==="ArrowRight" && a && a.classList.contains("item")) onItemRemove(a);
+      if (k==="ArrowLeft") $("back").focus(), $("scroller").scrollTo({top:0, behavior:"smooth"});
+    } else if (view==="home" || view==="manual"){
+      move(k==="ArrowRight" ? 1 : -1);
+    }
+    return;
+  }
+}, true);
+
+$("openList").addEventListener("click", function(){
+  try { history.pushState({v:"list"}, "", "#list"); } catch(e){}
+  show("list");
+});
+$("back").addEventListener("click", function(){
+  if (history.state && history.state.v === "list") history.back(); else exitList();
+});
+$("scroller").addEventListener("click", function(e){
+  var el = e.target.closest(".item"); if (el) onItemActivate(el);
+});
+
+window.addEventListener("popstate", function(e){
+  clearTimeout(escTimer); popCount++;
+  var st = e.state || {};
+  if (unwinding){ unwinding = false; return; }
+  if (view === "manual"){
+    if (st.v === "manual" && st.step === 1){ manualStep(1); return; }   // Back on "How many?" → item name
+    if (st.v !== "manual"){ homeFocus = $("typeIt"); show("home"); }   // Back on "What is the item?" → cancel
+    return;
+  }
+  if (view !== "list" || st.v === "list") return;
+  // Back while a pop-up is open on the list (or just closed by the same gesture): close it, stay on the list
+  if (modalState || Date.now() - modalClosedAt < 500){
+    if (modalState) closeModal(false);
+    try { history.pushState({v:"list"}, "", "#list"); } catch(err){}
+    return;
+  }
+  exitList();
+});
+
+/* =========================================================
+   DIM AFTER 15s IDLE
+   ========================================================= */
+var DIM_AFTER = 15000, dimT, dimmed = false;
+function wake(){
+  if (dimmed){ dimmed = false; app.classList.remove("dim"); }
+  clearTimeout(dimT); dimT = setTimeout(function(){ dimmed = true; app.classList.add("dim"); }, DIM_AFTER);
+}
+["pointerdown","touchstart","wheel"].forEach(function(ev){
+  document.addEventListener(ev, function(e){
+    if (dimmed && ev==="pointerdown"){ wake(); e.preventDefault(); e.stopPropagation(); return; }
+    wake();
+  }, {capture:true, passive: ev!=="pointerdown"});
+});
+
+/* =========================================================
+   BOOT
+   ========================================================= */
+load();
+if (location.hash === "#list" || location.hash === "#add"){ try { history.replaceState(null, "", location.pathname + location.search); } catch(e){} }
+show("home");
+wake();
+
+// Offline support so the list still opens with poor signal in-store. No audio is ever used,
+// so whatever music you're playing keeps playing.
+if ("serviceWorker" in navigator && location.protocol === "https:"){
+  try { navigator.serviceWorker.register("sw.js").catch(function(){}); } catch(e){}
+}
+
+// exposed for testing
+window.Shoptics = { parseItems: parseItems, categorise: categorise };
+})();
+</script>
+</body>
+</html>
