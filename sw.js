@@ -1,6 +1,6 @@
 // Shoptics service worker: keeps the app opening even with poor signal in-store.
 // Bump CACHE_NAME whenever you upload a new version to GitHub.
-const CACHE_NAME = 'shoptics-v4';
+const CACHE_NAME = 'shoptics-v5';
 const APP_SHELL = ['./', './index.html', './manifest.json', './icon-96.png', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {

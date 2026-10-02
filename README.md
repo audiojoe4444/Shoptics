@@ -27,5 +27,14 @@ Aisles: Produce · Dairy & Eggs · Pantry & Dry Goods · Meat & Seafood · House
 
 **Updating:** upload the changed files, then change `CACHE_NAME` in `sw.js` (e.g. `shoptics-v2`) so the glasses pick up the new version.
 
+## Automatic GitHub backup
+Glasses software updates can wipe web apps' saved data. Shoptics keeps an encrypted copy of your list (and your typed-item suggestions) in a private gist in your own GitHub account and restores it automatically.
+
+1. Use the same GitHub key as GlassCast (a classic token with only the `gist` permission). Shoptics saves to its own gist, `shoptics-backup.json`, so it never touches GlassCast's.
+2. In the Meta AI app, add `?sync=YOUR-KEY` to the end of the Shoptics address, e.g. `https://<your-username>.github.io/Shoptics/?sync=ghp_...` (use `&sync=` if the address already has a `?`).
+3. Open Shoptics. The bottom of the home screen shows **Backed up to GitHub · just now**.
+
+Changes are saved within a few seconds. After a wipe, the list comes back the next time you open the app. The key lives only in the app address, never in the code. A backup made with a different key is never overwritten.
+
 ## Customising the aisles
 Open `index.html` and find `var KEYWORDS`. Each aisle has a comma-separated list of words. Add a word to move items into that aisle (e.g. add `, oat bar` to `treats`).

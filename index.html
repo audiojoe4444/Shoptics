@@ -7,6 +7,7 @@
 <meta name="description" content="Shoptics — a say-it-and-it's-there shopping list for Meta Ray-Ban Display.">
 <meta name="mrbd-web-app-capable" content="yes">
 <meta name="theme-color" content="#000000">
+<meta name="referrer" content="no-referrer">
 <title>Shoptics</title>
 <link rel="icon" href="icon-96.png" sizes="96x96" type="image/png">
 <link rel="icon" href="icon-192.png" sizes="192x192" type="image/png">
@@ -212,6 +213,8 @@
   @keyframes pop{50%{transform:scale(1.35)}}
   .empty{text-align:center;margin-top:90px;color:var(--muted);font-size:24px;font-weight:700;line-height:1.5}
   .empty b{color:var(--lime);display:block;font-size:34px;margin-bottom:8px}
+  .bk{position:absolute;left:0;right:0;bottom:8px;text-align:center;font-size:14px;font-weight:700;color:#5d6380;pointer-events:none;letter-spacing:.2px}
+  .bk.warn{color:#c76a9a}
   .lfoot{position:absolute;left:0;right:0;bottom:10px;text-align:center;font-size:15px;color:#5d6380;font-weight:700;pointer-events:none}
 
   /* ---------- MODAL ---------- */
@@ -285,6 +288,7 @@
       <span class="ltxt">My List<span class="lsub" id="listSub">Nothing yet</span></span>
       <span class="dots" id="dots"></span>
     </button>
+    <div class="bk" id="bkStatus" aria-live="polite"></div>
   </section>
 
   <!-- SAY PAGE -->
@@ -536,10 +540,10 @@ function titleCase(s){
 /* =========================================================
    STATE (localStorage)
    ========================================================= */
-var STORE_KEY = "shoptics.v1";
+var STORE_KEY = "shoptics.v1", SAVED_KEY = "shoptics.savedAt";
 var items = [];
 function load(){ try { items = JSON.parse(localStorage.getItem(STORE_KEY)) || []; } catch(e){ items = []; } }
-function save(){ try { localStorage.setItem(STORE_KEY, JSON.stringify(items)); } catch(e){} }
+function save(){ try { localStorage.setItem(STORE_KEY, JSON.stringify(items)); localStorage.setItem(SAVED_KEY, String(Date.now())); } catch(e){} backupSoon(); }
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
 
 function addParsed(list){
@@ -827,7 +831,8 @@ var HIST_KEY = "shoptics.history", hist = [];
 try { hist = JSON.parse(localStorage.getItem(HIST_KEY)) || []; } catch(e){ hist = []; }
 function remember(name){
   hist = [name].concat(hist.filter(function(h){ return h.toLowerCase() !== name.toLowerCase(); })).slice(0, 80);
-  try { localStorage.setItem(HIST_KEY, JSON.stringify(hist)); } catch(e){}
+  try { localStorage.setItem(HIST_KEY, JSON.stringify(hist)); localStorage.setItem(SAVED_KEY, String(Date.now())); } catch(e){}
+  backupSoon();
 }
 function suggestions(q){
   q = q.trim().toLowerCase(); if (!q) return hist.slice(0,3);
@@ -1067,12 +1072,172 @@ function wake(){
 });
 
 /* =========================================================
+   GITHUB GIST BACKUP (same method as GlassCast)
+   Glasses software updates can wipe saved data, so the list is kept
+   in a private gist in the wearer's own GitHub account, encrypted
+   with AES-GCM using a key derived from their token. The token comes
+   only from the app address (?sync=... or #sync=...), never the code.
+   ========================================================= */
+var BK = (function(){
+  var API = "https://api.github.com", FILE = "shoptics-backup.json", DESC = "Shoptics backup (encrypted)";
+  var GIST_KEY = "shoptics.gistId";
+  var token = null;
+  try {
+    token = new URLSearchParams(location.search).get("sync");
+    if (!token){ var m = location.hash.match(/[#&]sync=([^&]+)/); if (m) token = decodeURIComponent(m[1]); }
+  } catch(e){}
+  token = token ? token.trim() : null;
+  var ready = false, dirty = false, timer = null, busy = false, blocked = null, lastOk = 0, cryptoKey = null, salt = null;
+
+  function status(text, warn){
+    var el = document.getElementById("bkStatus"); if (!el) return;
+    el.textContent = text; el.classList.toggle("warn", !!warn);
+  }
+  function hhmm(t){ var d = new Date(t); return ("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2); }
+  function showOk(){ status("Backed up to GitHub · " + (Date.now()-lastOk < 60000 ? "just now" : hhmm(lastOk))); }
+
+  function headers(){ return { "Authorization": "Bearer " + token, "Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28", "Content-Type": "application/json" }; }
+  function gh(path, opts){
+    opts = opts || {}; opts.headers = headers(); opts.cache = "no-store"; opts.referrerPolicy = "no-referrer";
+    return fetch(API + path, opts).then(function(r){
+      if (r.status === 401 || r.status === 403){ var e = new Error("auth"); e.auth = true; throw e; }
+      if (r.status === 404){ var n = new Error("404"); n.notFound = true; throw n; }
+      if (!r.ok) throw new Error("http " + r.status);
+      return r.json();
+    });
+  }
+
+  // ---- crypto ----
+  function b64(buf){ var b = new Uint8Array(buf), s = ""; for (var i=0;i<b.length;i++) s += String.fromCharCode(b[i]); return btoa(s); }
+  function unb64(str){ var s = atob(str), b = new Uint8Array(s.length); for (var i=0;i<s.length;i++) b[i] = s.charCodeAt(i); return b; }
+  function deriveKey(saltBytes){
+    var enc = new TextEncoder();
+    return crypto.subtle.importKey("raw", enc.encode(token), "PBKDF2", false, ["deriveKey"]).then(function(base){
+      return crypto.subtle.deriveKey({name:"PBKDF2", salt:saltBytes, iterations:150000, hash:"SHA-256"},
+        base, {name:"AES-GCM", length:256}, false, ["encrypt","decrypt"]);
+    });
+  }
+  function keyFor(saltBytes){
+    if (cryptoKey && salt && b64(salt) === b64(saltBytes)) return Promise.resolve(cryptoKey);
+    return deriveKey(saltBytes).then(function(k){ cryptoKey = k; salt = saltBytes; return k; });
+  }
+  function encrypt(obj){
+    var s = salt || crypto.getRandomValues(new Uint8Array(16)), iv = crypto.getRandomValues(new Uint8Array(12));
+    return keyFor(s).then(function(k){
+      return crypto.subtle.encrypt({name:"AES-GCM", iv:iv}, k, new TextEncoder().encode(JSON.stringify(obj)));
+    }).then(function(ct){ return {app:"shoptics", v:1, salt:b64(s), iv:b64(iv), data:b64(ct)}; });
+  }
+  function decrypt(file){
+    return keyFor(unb64(file.salt)).then(function(k){
+      return crypto.subtle.decrypt({name:"AES-GCM", iv:unb64(file.iv)}, k, unb64(file.data));
+    }).then(function(pt){ return JSON.parse(new TextDecoder().decode(pt)); });
+  }
+
+  // ---- gist lookup ----
+  function getId(){ try { return localStorage.getItem(GIST_KEY); } catch(e){ return null; } }
+  function setId(id){ try { id ? localStorage.setItem(GIST_KEY, id) : localStorage.removeItem(GIST_KEY); } catch(e){} }
+  function findGist(page){
+    page = page || 1;
+    return gh("/gists?per_page=100&page=" + page).then(function(list){
+      for (var i=0;i<list.length;i++){ if (list[i].files && list[i].files[FILE]) return list[i].id; }
+      return list.length === 100 ? findGist(page+1) : null;
+    });
+  }
+  function readGist(id){
+    return gh("/gists/" + id).then(function(g){
+      var f = g.files && g.files[FILE]; if (!f) return null;
+      if (f.truncated && f.raw_url) return fetch(f.raw_url, {cache:"no-store"}).then(function(r){ return r.json(); });
+      return JSON.parse(f.content);
+    });
+  }
+
+  // ---- local snapshot ----
+  function localSavedAt(){ try { return +localStorage.getItem(SAVED_KEY) || 0; } catch(e){ return 0; } }
+  function snapshot(){ return { items: items, history: hist, savedAt: localSavedAt() || Date.now() }; }
+  function applyBackup(d){
+    items = Array.isArray(d.items) ? d.items : [];
+    hist = Array.isArray(d.history) ? d.history : [];
+    try {
+      localStorage.setItem(STORE_KEY, JSON.stringify(items));
+      localStorage.setItem(HIST_KEY, JSON.stringify(hist));
+      localStorage.setItem(SAVED_KEY, String(d.savedAt || Date.now()));
+    } catch(e){}
+    if (view === "list") renderList(); else renderHome();
+    var n = items.filter(function(i){ return !i.bought; }).length;
+    flash("Restored " + n + " item" + (n === 1 ? "" : "s") + " from backup", [], false);
+  }
+
+  // ---- restore on launch ----
+  function restore(){
+    status("Checking your backup…");
+    var id = getId();
+    var p = id ? readGist(id).catch(function(e){ if (e.notFound){ setId(null); return findGist().then(function(nid){ setId(nid); return nid ? readGist(nid) : null; }); } throw e; })
+               : findGist().then(function(nid){ setId(nid); return nid ? readGist(nid) : null; });
+    return p.then(function(file){
+      if (!file){ ready = true; dirty = true; return push(); }          // first run: create the backup
+      return decrypt(file).then(function(d){
+        salt = unb64(file.salt);
+        var localEmpty = !items.length && !hist.length;
+        if (localEmpty || (d.savedAt || 0) > localSavedAt()){
+          if ((d.items && d.items.length) || (d.history && d.history.length)) applyBackup(d);
+        } else if (localSavedAt() > (d.savedAt || 0)) dirty = true;
+        ready = true; lastOk = Date.now(); showOk();
+        if (dirty) return push();
+      }, function(){
+        blocked = "key"; ready = true;
+        status("Backup was made with a different key — not touched", true);
+      });
+    }).catch(fail);
+  }
+
+  // ---- save ----
+  function push(keepalive){
+    if (!token || !ready || blocked || busy || !dirty) return Promise.resolve();
+    busy = true; dirty = false;
+    return encrypt(snapshot()).then(function(file){
+      var body = { description: DESC, files: {} };
+      body.files[FILE] = { content: JSON.stringify(file) };
+      var id = getId();
+      var send = function(){
+        if (id) return gh("/gists/" + id, {method:"PATCH", body:JSON.stringify(body), keepalive:!!keepalive});
+        body.public = false;
+        return gh("/gists", {method:"POST", body:JSON.stringify(body), keepalive:!!keepalive}).then(function(g){ setId(g.id); return g; });
+      };
+      return send().catch(function(e){ if (e.notFound && id){ setId(null); id = null; return send(); } throw e; });
+    }).then(function(){ busy = false; lastOk = Date.now(); showOk(); if (dirty) schedule(3000); })
+      .catch(function(e){ busy = false; dirty = true; fail(e); });
+  }
+  function fail(e){
+    if (e && e.auth){ blocked = "auth"; status("GitHub key not accepted — check the sync= key", true); return; }
+    status("Backup waiting for a connection", true);
+    schedule(60000);
+  }
+  function schedule(ms){ clearTimeout(timer); timer = setTimeout(function(){ ready ? push() : restore(); }, ms); }
+
+  if (token){
+    if (!window.crypto || !crypto.subtle){ token = null; }
+    else {
+      document.addEventListener("visibilitychange", function(){ if (document.visibilityState === "hidden"){ clearTimeout(timer); push(true); } });
+      window.addEventListener("online", function(){ if (!blocked) schedule(500); });
+      setInterval(function(){ if (lastOk && !blocked && !busy && !dirty) showOk(); }, 60000);
+    }
+  }
+  return {
+    enabled: function(){ return !!token; },
+    start: function(){ if (token) restore(); },
+    changed: function(){ if (!token) return; dirty = true; if (ready && !blocked) schedule(3000); }
+  };
+})();
+function backupSoon(){ if (typeof BK !== "undefined" && BK) BK.changed(); }
+
+/* =========================================================
    BOOT
    ========================================================= */
 load();
 if (/^#(list|add|say)$/.test(location.hash)){ try { history.replaceState(null, "", location.pathname + location.search); } catch(e){} }
 show("home");
 wake();
+BK.start();
 
 // Offline support so the list still opens with poor signal in-store. No audio is ever used,
 // so whatever music you're playing keeps playing.
